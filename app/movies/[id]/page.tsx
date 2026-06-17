@@ -3,6 +3,7 @@ import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
 import { getMovieDetails } from "../../../lib/tmdb";
 import { ReviewSection } from "../../../components/ReviewSection";
+import { FavoriteButton } from "../../../components/FavoriteButton";
 
 type MovieDetailPageProps = {
   params: Promise<{
@@ -74,9 +75,21 @@ export default async function MovieDetailPage({
               MOVIE DETAIL
             </p>
 
-            <h1 className="mt-5 text-4xl font-bold tracking-tight md:text-6xl">
-              {movie.title}
-            </h1>
+            <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
+                {movie.title}
+              </h1>
+
+              <FavoriteButton
+                movie={{
+                  id: movie.id,
+                  title: movie.title,
+                  poster: posterUrl,
+                  year: releaseYear,
+                  rating,
+                }}
+              />
+            </div>
 
             {movie.tagline && (
               <p className="mt-4 text-lg italic text-slate-300">
