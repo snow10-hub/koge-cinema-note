@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
 import { MovieList } from "../components/MovieList";
+import { Footer } from "../components/Footer";
 
 type Movie = {
   id: number;
@@ -136,6 +137,7 @@ export default function Home() {
             <MovieList movies={movies} />
           )}
         </section>
+        <Footer />
       </div>
     </main>
   );
