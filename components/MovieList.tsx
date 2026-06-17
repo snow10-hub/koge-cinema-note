@@ -22,11 +22,22 @@ export function MovieList({ movies }: MovieListProps) {
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
-      </div>
+      {movies.length === 0 ? (
+        <div className="rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-12 text-center">
+          <p className="text-lg font-bold text-white">
+            該当する映画が見つかりませんでした
+          </p>
+          <p className="mt-3 text-sm text-slate-400">
+            別のキーワードで検索してみてください。
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {movies.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
