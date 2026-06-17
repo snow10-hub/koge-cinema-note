@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
 import { getMovieDetails } from "../../../lib/tmdb";
@@ -58,9 +59,11 @@ export default async function MovieDetailPage({
         <section className="mt-12 grid gap-10 md:grid-cols-[320px_1fr] md:items-start">
           <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/70 shadow-2xl shadow-black/40">
             {posterUrl ? (
-              <img
+              <Image
                 src={posterUrl}
                 alt={`${movie.title} poster`}
+                width={500}
+                height={750}
                 className="w-full object-cover"
               />
             ) : (
@@ -109,7 +112,7 @@ export default async function MovieDetailPage({
               )}
 
               <span className="rounded-full border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-sky-300">
-                ★ {rating}
+                TMDB ★ {rating}
               </span>
             </div>
 
@@ -134,7 +137,7 @@ export default async function MovieDetailPage({
             </div>
           </div>
         </section>
-        <ReviewSection />
+        <ReviewSection movieId={movie.id} />
       </div>
       <Footer />
     </main>

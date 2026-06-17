@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Pin } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -146,10 +147,12 @@ export function FavoritesList() {
                         >
                             <Link href={`/movies/${movie.id}`}>
                                 {movie.poster ? (
-                                    <img
+                                    <Image
                                         src={movie.poster}
                                         alt={`${movie.title} poster`}
-                                        className="aspect-[2/3] w-full object-cover transition duration-300 group-hover:scale-105"
+                                        width={500}
+                                        height={750}
+                                        className="w-full object-cover"
                                     />
                                 ) : (
                                     <div className="flex aspect-[2/3] w-full items-center justify-center bg-slate-800 text-sm text-slate-400">
@@ -167,15 +170,15 @@ export function FavoritesList() {
 
                                 <div className="mt-3 flex items-center justify-between text-sm text-slate-400">
                                     <span>{movie.year}</span>
-                                    <span className="text-sky-300">★ {movie.rating}</span>
+                                    <span className="text-sky-300">TMDB ★ {movie.rating}</span>
                                 </div>
 
                                 <button
                                     type="button"
                                     onClick={() => handleTogglePin(movie.id)}
                                     className={`mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition ${movie.isPinned
-                                            ? "border-amber-300/60 bg-amber-400/10 text-amber-200"
-                                            : "border-white/10 text-slate-300 hover:border-amber-300/60 hover:bg-amber-400/10 hover:text-amber-200"
+                                        ? "border-amber-300/60 bg-amber-400/10 text-amber-200"
+                                        : "border-white/10 text-slate-300 hover:border-amber-300/60 hover:bg-amber-400/10 hover:text-amber-200"
                                         }`}
                                 >
                                     <Pin className={`h-4 w-4 ${movie.isPinned ? "fill-current" : ""}`} />

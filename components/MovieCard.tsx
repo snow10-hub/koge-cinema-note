@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 type Movie = {
   id: number;
@@ -18,10 +19,12 @@ export function MovieCard({ movie }: MovieCardProps) {
     <Link href={`/movies/${movie.id}`} className="block">
       <article className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/70 shadow-xl shadow-black/30 transition hover:-translate-y-1 hover:border-sky-500/60">
         {movie.poster ? (
-          <img
+          <Image
             src={movie.poster}
             alt={`${movie.title} poster`}
-            className="h-[420px] w-full object-cover"
+            width={500}
+            height={750}
+            className="aspect-[2/3] w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-[420px] w-full items-center justify-center bg-slate-800 text-sm text-slate-400">
@@ -32,9 +35,7 @@ export function MovieCard({ movie }: MovieCardProps) {
         <div className="p-5">
           <div className="mb-3 flex items-center justify-between text-sm text-slate-400">
             <span>{movie.year}</span>
-            <span className="rounded-full bg-sky-500/10 px-3 py-1 text-sky-300">
-              ★ {movie.rating}
-            </span>
+            <span className="text-sky-300">TMDB ★ {movie.rating}</span>
           </div>
 
           <h4 className="text-xl font-bold">{movie.title}</h4>

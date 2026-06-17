@@ -16,7 +16,7 @@ export function Hero({
   backdropUrl,
 }: HeroProps) {
   return (
-    <section className="relative overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl shadow-black/40">
+    <section id="search" className="relative overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl shadow-black/40">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-45"
         style={{

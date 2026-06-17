@@ -8,19 +8,18 @@ export function Header() {
           KOGE CINEMA NOTE
         </h1>
 
-        <nav className="hidden gap-8 text-xs font-medium tracking-[0.2em] text-slate-400 md:flex">
-          <a className="transition hover:text-sky-300" href="#">
+        <nav className="flex items-center gap-6 text-sm font-medium text-slate-300">
+          <Link className="transition hover:text-sky-300" href="/">
             HOME
-          </a>
-          <a className="transition hover:text-sky-300" href="#">
+          </Link>
+
+          <Link className="transition hover:text-sky-300" href="/#search">
             SEARCH
-          </a>
+          </Link>
+
           <Link className="transition hover:text-sky-300" href="/favorites">
             MY LIST
           </Link>
-          <a className="transition hover:text-sky-300" href="#">
-            REVIEW
-          </a>
         </nav>
       </div>
     </header>
