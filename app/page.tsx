@@ -91,10 +91,14 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+  <main className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.14),_transparent_28%),linear-gradient(180deg,_rgba(2,6,23,0.2),_#020617_70%)]" />
+    <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sky-500/10 to-transparent" />
+
+    <div className="relative z-10">
       <Header />
 
-      <section className="mx-auto flex max-w-6xl flex-col px-6 py-20">
+      <section className="mx-auto flex max-w-6xl flex-col px-6 pb-24 pt-8 md:pt-10">
         <Hero
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
@@ -119,6 +123,7 @@ export default function Home() {
           <MovieList movies={movies} />
         )}
       </section>
-    </main>
-  );
+    </div>
+  </main>
+);
 }
