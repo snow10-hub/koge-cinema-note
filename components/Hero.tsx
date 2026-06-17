@@ -1,4 +1,9 @@
-export function Hero() {
+type HeroProps = {
+  searchTerm: string;
+  onSearchTermChange: (value: string) => void;
+};
+
+export function Hero({ searchTerm, onSearchTermChange }: HeroProps) {
   return (
     <>
       <p className="mb-4 text-sm tracking-[0.3em] text-sky-400">
@@ -16,6 +21,8 @@ export function Hero() {
       <div className="mt-10 flex max-w-2xl rounded-full border border-slate-700 bg-slate-900/80 p-2 shadow-2xl shadow-sky-950/40">
         <input
           type="text"
+          value={searchTerm}
+          onChange={(event) => onSearchTermChange(event.target.value)}
           placeholder="映画タイトルを検索..."
           className="flex-1 bg-transparent px-5 text-sm text-white outline-none placeholder:text-slate-500"
         />
