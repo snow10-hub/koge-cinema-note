@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
@@ -13,9 +15,9 @@ export function Header() {
           <a className="transition hover:text-sky-300" href="#">
             SEARCH
           </a>
-          <a className="transition hover:text-sky-300" href="#">
+          <Link className="transition hover:text-sky-300" href="/favorites">
             MY LIST
-          </a>
+          </Link>
           <a className="transition hover:text-sky-300" href="#">
             REVIEW
           </a>
