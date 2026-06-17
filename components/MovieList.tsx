@@ -5,7 +5,7 @@ type Movie = {
   title: string;
   year: string;
   rating: number;
-  poster: string;
+  poster: string | null;
 };
 
 type MovieListProps = {
