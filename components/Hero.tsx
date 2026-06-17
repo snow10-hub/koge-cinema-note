@@ -5,6 +5,7 @@ type HeroProps = {
   onSearchTermChange: (value: string) => void;
   onSearch: () => void;
   isLoading: boolean;
+  backdropUrl: string | null;
 };
 
 export function Hero({
@@ -12,14 +13,14 @@ export function Hero({
   onSearchTermChange,
   onSearch,
   isLoading,
+  backdropUrl,
 }: HeroProps) {
   return (
     <section className="relative overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl shadow-black/40">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-45"
         style={{
-          backgroundImage:
-            "url('https://image.tmdb.org/t/p/original/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg')",
+          backgroundImage: backdropUrl ? `url('${backdropUrl}')` : undefined,
         }}
       />
 

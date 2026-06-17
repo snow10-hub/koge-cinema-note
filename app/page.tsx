@@ -11,12 +11,14 @@ type Movie = {
   year: string;
   rating: number;
   poster: string | null;
+  backdrop: string | null;
 };
 
 type TmdbMovie = {
   id: number;
   title: string;
   poster_path: string | null;
+  backdrop_path: string | null;
   release_date: string;
   vote_average: number;
 };
@@ -28,6 +30,7 @@ const initialMovies: Movie[] = [
     year: "2010",
     rating: 8.4,
     poster: "https://image.tmdb.org/t/p/w500/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+    backdrop: "https://image.tmdb.org/t/p/original/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
   },
   {
     id: 157336,
@@ -35,6 +38,7 @@ const initialMovies: Movie[] = [
     year: "2014",
     rating: 8.5,
     poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+    backdrop: null,
   },
   {
     id: 329,
@@ -42,6 +46,7 @@ const initialMovies: Movie[] = [
     year: "1993",
     rating: 8.0,
     poster: "https://image.tmdb.org/t/p/w500/63viWuPfYQjRYLSZSZNq7dglJP5.jpg",
+    backdrop: null,
   },
 ];
 
@@ -80,6 +85,9 @@ export default function Home() {
         poster: movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
           : null,
+        backdrop: movie.backdrop_path
+          ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+          : null,
       }));
 
       setMovies(formattedMovies);
@@ -90,40 +98,45 @@ export default function Home() {
     }
   }
 
+  const heroBackdrop =
+    movies.find((movie) => movie.backdrop)?.backdrop ??
+    initialMovies[0].backdrop;
+
   return (
-  <main className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.14),_transparent_28%),linear-gradient(180deg,_rgba(2,6,23,0.2),_#020617_70%)]" />
-    <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sky-500/10 to-transparent" />
+    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.14),_transparent_28%),linear-gradient(180deg,_rgba(2,6,23,0.2),_#020617_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sky-500/10 to-transparent" />
 
-    <div className="relative z-10">
-      <Header />
+      <div className="relative z-10">
+        <Header />
 
-      <section className="mx-auto flex max-w-6xl flex-col px-6 pb-24 pt-8 md:pt-10">
-        <Hero
-          searchTerm={searchTerm}
-          onSearchTermChange={setSearchTerm}
-          onSearch={handleSearch}
-          isLoading={isLoading}
-        />
+        <section className="mx-auto flex max-w-6xl flex-col px-6 pb-24 pt-8 md:pt-10">
+          <Hero
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            onSearch={handleSearch}
+            isLoading={isLoading}
+            backdropUrl={heroBackdrop}
+          />
 
-        {errorMessage && (
-          <p className="mt-8 rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-200">
-            {errorMessage}
-          </p>
-        )}
-
-        {isLoading ? (
-          <div className="mt-20 rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-12 text-center">
-            <p className="text-lg font-bold text-white">検索中...</p>
-            <p className="mt-3 text-sm text-slate-400">
-              映画データを取得しています。
+          {errorMessage && (
+            <p className="mt-8 rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-200">
+              {errorMessage}
             </p>
-          </div>
-        ) : (
-          <MovieList movies={movies} />
-        )}
-      </section>
-    </div>
-  </main>
-);
+          )}
+
+          {isLoading ? (
+            <div className="mt-20 rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-12 text-center">
+              <p className="text-lg font-bold text-white">検索中...</p>
+              <p className="mt-3 text-sm text-slate-400">
+                映画データを取得しています。
+              </p>
+            </div>
+          ) : (
+            <MovieList movies={movies} />
+          )}
+        </section>
+      </div>
+    </main>
+  );
 }
