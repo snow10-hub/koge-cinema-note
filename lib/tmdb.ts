@@ -37,3 +37,40 @@ export async function searchMovies(query: string): Promise<TmdbMovie[]> {
 
   return data.results;
 }
+
+export type TmdbMovieDetail = {
+  id: number;
+  title: string;
+  tagline: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  release_date: string;
+  runtime: number | null;
+  vote_average: number;
+  genres: {
+    id: number;
+    name: string;
+  }[];
+};
+
+export async function getMovieDetails(id: string): Promise<TmdbMovieDetail> {
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("TMDB_API_KEY is not set");
+  }
+
+  const params = new URLSearchParams({
+    api_key: apiKey,
+    language: "ja-JP",
+  });
+
+  const response = await fetch(`${TMDB_BASE_URL}/movie/${id}?${params}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch movie details");
+  }
+
+  return response.json();
+}
