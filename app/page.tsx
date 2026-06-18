@@ -65,18 +65,7 @@ export default function Home() {
   // 必要であれば裏側でイベントを検知して安全に動く状態にします。
   useEffect(() => {
     fetchTrendingMovies();
-
-    // 他のページでお気に入り操作が行われた時に、トップページの挙動が不整合を起こさないようにイベントを受け流す設定
-    const handleGlobalUpdate = () => {
-      // 検索中ではない（初期のトレンド表示の）場合のみ、最新の状態に安全に同期させる
-      if (!hasSearched) {
-        fetchTrendingMovies();
-      }
-    };
-
-    window.addEventListener("koge_favorites_updated", handleGlobalUpdate);
-    return () => window.removeEventListener("koge_favorites_updated", handleGlobalUpdate);
-  }, [hasSearched]);
+  }, []);
 
   async function handleSearch() {
     if (!searchTerm.trim()) {
@@ -112,7 +101,7 @@ export default function Home() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
-        
+
         <Hero
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
@@ -120,7 +109,7 @@ export default function Home() {
           isLoading={isLoading}
           backdropUrl={heroBackdrop}
         />
-        
+
         <div className="flex-1 pb-24">
           {errorMessage && (
             <div className="mx-auto max-w-6xl px-6 mt-8">
