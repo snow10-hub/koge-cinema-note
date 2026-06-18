@@ -7,6 +7,7 @@ export type TmdbMovie = {
   release_date: string;
   vote_average: number;
   overview: string;
+  backdrop_path: string | null;
 };
 
 export async function searchMovies(query: string): Promise<TmdbMovie[]> {
@@ -31,6 +32,30 @@ export async function searchMovies(query: string): Promise<TmdbMovie[]> {
 
   if (!response.ok) {
     throw new Error("Failed to fetch movies");
+  }
+
+  const data = await response.json();
+
+  return data.results;
+}
+
+
+export async function getTrendingMovies(): Promise<TmdbMovie[]> {
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("TMDB_API_KEY is not set");
+  }
+
+  const params = new URLSearchParams({
+    api_key: apiKey,
+    language: "ja-JP",
+  });
+
+  const response = await fetch(`${TMDB_BASE_URL}/trending/movie/week?${params}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch trending movies");
   }
 
   const data = await response.json();

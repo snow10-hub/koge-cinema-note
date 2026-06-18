@@ -11,15 +11,16 @@ type Movie = {
 
 type MovieListProps = {
   movies: Movie[];
+  title: string;
 };
 
-export function MovieList({ movies }: MovieListProps) {
+export function MovieList({ movies, title }: MovieListProps) {
   return (
     <section className="mt-20">
       <div className="mb-8 flex items-end justify-between">
         <div>
           <p className="text-sm tracking-[0.25em] text-sky-400">FEATURED</p>
-          <h3 className="mt-3 text-3xl font-bold">Featured Movies</h3>
+          <h3 className="mt-3 text-3xl font-bold">{title}</h3>
         </div>
       </div>
 

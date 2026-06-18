@@ -1,14 +1,28 @@
 import Link from "next/link";
+import { Bebas_Neue } from "next/font/google";
+
+const bebasNeue = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <h1 className="text-sm font-bold tracking-[0.35em] text-white md:text-base">
-          KOGE CINEMA NOTE
-        </h1>
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <Link href="/" className="group block">
+          <span
+            className={`${bebasNeue.className} block text-3xl tracking-widest text-white drop-shadow-md transition group-hover:text-sky-200 md:text-4xl`}
+          >
+            KOGE CINEMA NOTE
+          </span>
 
-        <nav className="flex items-center gap-6 text-sm font-medium text-slate-300">
+          <span className="mt-1 block text-[11px] font-medium tracking-wide text-slate-400 md:text-xs">
+            映画を探して、あなたの物語を残す場所。
+          </span>
+        </Link>
+
+        <nav className="flex items-center gap-5 text-xs font-bold tracking-[0.16em] text-slate-300 md:gap-7">
           <Link className="transition hover:text-sky-300" href="/">
             HOME
           </Link>

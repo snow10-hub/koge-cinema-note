@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
 import { MovieList } from "../components/MovieList";
-import { Footer } from "../components/Footer";
 
 type Movie = {
   id: number;
@@ -24,49 +24,65 @@ type TmdbMovie = {
   vote_average: number;
 };
 
-const initialMovies: Movie[] = [
-  {
-    id: 27205,
-    title: "Inception",
-    year: "2010",
-    rating: 8.4,
-    poster: "https://image.tmdb.org/t/p/w500/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
-    backdrop: "https://image.tmdb.org/t/p/original/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
-  },
-  {
-    id: 157336,
-    title: "Interstellar",
-    year: "2014",
-    rating: 8.5,
-    poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
-    backdrop: null,
-  },
-  {
-    id: 329,
-    title: "Jurassic Park",
-    year: "1993",
-    rating: 8.0,
-    poster: "https://image.tmdb.org/t/p/w500/63viWuPfYQjRYLSZSZNq7dglJP5.jpg",
-    backdrop: null,
-  },
-];
+function formatMovies(tmdbMovies: TmdbMovie[]): Movie[] {
+  return tmdbMovies.map((movie) => ({
+    id: movie.id,
+    title: movie.title,
+    year: movie.release_date ? movie.release_date.slice(0, 4) : "----",
+    rating: Math.round(movie.vote_average * 10) / 10,
+    poster: movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      : null,
+    backdrop: movie.backdrop_path
+      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+      : null,
+  }));
+}
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [movies, setMovies] = useState<Movie[]>(initialMovies);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
+
+  async function fetchTrendingMovies() {
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
+      setHasSearched(false);
+
+      const response = await fetch("/api/trending");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch trending movies");
+      }
+
+      const data: { results: TmdbMovie[] } = await response.json();
+      setMovies(formatMovies(data.results));
+    } catch {
+      setErrorMessage(
+        "話題作の取得に失敗しました。時間をおいて再度お試しください。"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchTrendingMovies();
+  }, []);
 
   async function handleSearch() {
     if (!searchTerm.trim()) {
-      setMovies(initialMovies);
-      setErrorMessage("");
+      fetchTrendingMovies();
       return;
     }
 
     try {
       setIsLoading(true);
       setErrorMessage("");
+      setHasSearched(true);
 
       const response = await fetch(
         `/api/search?query=${encodeURIComponent(searchTerm)}`
@@ -77,31 +93,18 @@ export default function Home() {
       }
 
       const data: { results: TmdbMovie[] } = await response.json();
-
-      const formattedMovies = data.results.map((movie) => ({
-        id: movie.id,
-        title: movie.title,
-        year: movie.release_date ? movie.release_date.slice(0, 4) : "----",
-        rating: Math.round(movie.vote_average * 10) / 10,
-        poster: movie.poster_path
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : null,
-        backdrop: movie.backdrop_path
-          ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-          : null,
-      }));
-
-      setMovies(formattedMovies);
+      setMovies(formatMovies(data.results));
     } catch {
-      setErrorMessage("映画データの取得に失敗しました。時間をおいて再度お試しください。");
+      setErrorMessage(
+        "映画データの取得に失敗しました。時間をおいて再度お試しください。"
+      );
     } finally {
       setIsLoading(false);
     }
   }
 
-  const heroBackdrop =
-    movies.find((movie) => movie.backdrop)?.backdrop ??
-    initialMovies[0].backdrop;
+  const heroBackdrop = movies.find((movie) => movie.backdrop)?.backdrop ?? null;
+  const movieListTitle = hasSearched ? "Search Results" : "Trending This Week";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
@@ -134,9 +137,10 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            <MovieList movies={movies} />
+            <MovieList movies={movies} title={movieListTitle} />
           )}
         </section>
+
         <Footer />
       </div>
     </main>

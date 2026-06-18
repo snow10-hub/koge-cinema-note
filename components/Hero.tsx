@@ -61,7 +61,7 @@ export function Hero({
           <button
             type="submit"
             disabled={isLoading}
-            className="border-l border-slate-700 px-5 py-4 text-xl text-white transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer disabled:cursor-not-allowed border-l border-slate-700 px-5 py-4 text-xl text-white transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="映画を検索"
           >
             <Search size={22} strokeWidth={2.2} />
