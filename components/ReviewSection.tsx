@@ -26,7 +26,7 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // 🌟バグ回避: SSRとの整合性を保つため、初期値は絶対に空配列にする
   const [reviews, setReviews] = useState<Review[]>([]);
   // 開閉管理をシンプルなID配列に変更してコードを簡略化
@@ -95,7 +95,7 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
 
     const nextReviews = [newReview, ...reviews];
     localStorage.setItem(getStorageKey(movieId), JSON.stringify(nextReviews));
-    
+
     setReviews(nextReviews);
     setReviewText("");
     setRating(0);
@@ -108,10 +108,20 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
       {/* 見出し */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-white/5 pb-5">
         <div>
-          <p className="text-[10px] font-bold tracking-[0.3em] text-sky-400 uppercase">
-            MY REVIEW
+          {/* カテゴリ：共通の極小・広字間スタイル */}
+          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-sky-400">
+            COLLECTION
           </p>
-          <h2 className="mt-1.5 text-xl font-bold tracking-wide text-white md:text-2xl">映画メモを残す</h2>
+
+          {/* メイン見出し：h2のまま、英語大文字・スマートな中太（font-medium）・広字間（tracking-widest）へ */}
+          <h2 className="mt-1.5 text-lg font-medium tracking-widest text-white md:text-xl uppercase">
+            MY REVIEW
+          </h2>
+
+          {/* サブ説明文：MovieListと全く同じ、12px(text-xs)・上品な細さ（font-light）の日本語サブ */}
+          <p className="mt-2 text-xs font-light tracking-wide text-slate-400/90 leading-relaxed">
+            映画メモを残す
+          </p>
         </div>
         <p className="text-xs text-slate-400">星評価とネタバレ配慮つきで感想を保存できます。</p>
       </div>
@@ -156,9 +166,8 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
                 key={star}
                 type="button"
                 onClick={() => setRating(star)}
-                className={`cursor-pointer text-2xl transition-all duration-200 active:scale-95 hover:scale-110 ${
-                  star <= rating ? "text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]" : "text-slate-800"
-                }`}
+                className={`cursor-pointer text-2xl transition-all duration-200 active:scale-95 hover:scale-110 ${star <= rating ? "text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]" : "text-slate-800"
+                  }`}
                 aria-label={`${star}点をつける`}
               >
                 ★
@@ -258,13 +267,17 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
                     </p>
 
                     {review.isSpoiler && (
-                      <button
-                        type="button"
-                        onClick={() => toggleReveal(review.id)}
-                        className="cursor-pointer text-xs font-black tracking-widest text-slate-500 transition hover:text-sky-400 uppercase"
-                      >
-                        [ HIDE CONTENT ]
-                      </button>
+                      /* 🌟 変更ポイント: text-center のブロックで囲むことで、
+                         コンテンツ表示後もボタンが画面の中央（SHOW CONTENTと同じX軸）に固定されます */
+                      <div className="text-center pt-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleReveal(review.id)}
+                          className="cursor-pointer text-xs font-black tracking-widest text-slate-500 transition hover:text-sky-400 uppercase"
+                        >
+                          [ HIDE CONTENT ]
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}

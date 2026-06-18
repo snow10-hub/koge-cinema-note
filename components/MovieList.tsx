@@ -36,13 +36,18 @@ export function MovieList({ movies, title }: MovieListProps) {
       
       {/* セクション見出し */}
       <div className="mb-8 border-b border-white/5 pb-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-sky-400">
+        {/* カテゴリ：字間をさらに広げてロゴっぽく佇ませる */}
+        <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-sky-400">
           {isTrending ? "FEATURED" : "DISCOVER"}
         </p>
-        <h3 className="mt-1 text-lg font-medium tracking-tight text-white md:text-xl uppercase">
+        
+        {/* メイン見出し：大文字（uppercase）を活かし、字間を広くあけてスマートな中太（font-medium）に */}
+        <h3 className="mt-1.5 text-lg font-medium tracking-widest text-white md:text-xl uppercase">
           {title}
         </h3>
-        <p className="mt-2 max-w-xl text-xs text-slate-500 tracking-wide">
+        
+        {/* サブ説明文：サイズを12px(text-xs)に上げつつ、font-lightで上品に佇ませる */}
+        <p className="mt-2.5 max-w-xl text-xs font-light tracking-wide text-slate-400/90 leading-relaxed">
           {description}
         </p>
       </div>

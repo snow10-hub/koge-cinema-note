@@ -100,13 +100,21 @@ export function FavoritesList() {
             {/* ヘッダー：文字サイズを絞り、字間をあけてスタイリッシュに */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-white/5 pb-5">
                 <div>
-                    <p className="text-[10px] font-black tracking-[0.3em] text-sky-400 uppercase">
-                        MY LIST
-                    </p>
-                    <h1 className="mt-1 text-2xl font-black tracking-tight text-white md:text-3xl uppercase">
+                      {/* カテゴリ：共通の極小・広字間スタイル */}
+                      <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-sky-400">
+                        COLLECTION
+                      </p>
+                      
+                      {/* メイン見出し：英語大文字・スマートな中太（font-medium）・広字間（tracking-widest） */}
+                      <h1 className="mt-1.5 text-lg font-medium tracking-widest text-white md:text-xl uppercase">
                         MY FAVORITES
-                    </h1>
-                </div>
+                      </h1>
+                      
+                      {/* サブ説明文：MovieListやレビュー枠と全く同じ、12px(text-xs)・上品な細さ（font-light）の日本語サブ */}
+                      <p className="mt-2 text-xs font-light tracking-wide text-slate-400/90 leading-relaxed">
+                        ストックしたお気に入りの映画一覧。
+                      </p>
+                    </div>
 
                 {/* 操作エリア：フォントサイズを text-xs に落とし、大ぶりな要素を排除 */}
                 <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold">
