@@ -25,7 +25,7 @@ type FavoriteButtonProps = {
 const STORAGE_KEY = "koge-cinema-favorites";
 
 function getStoredFavorites(): FavoriteMovie[] {
-  if (typeof window === "undefined") return []; // サーバーサイドでの安全対策
+  if (typeof window === "undefined") return [];
   const rawFavorites = localStorage.getItem(STORAGE_KEY);
   if (!rawFavorites) return [];
 
@@ -39,10 +39,8 @@ function getStoredFavorites(): FavoriteMovie[] {
 export function FavoriteButton({ movie }: FavoriteButtonProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  // 🌟追加: クライアント側でのマウント完了を管理するフラグ（チラつき防止）
   const [isMounted, setIsMounted] = useState(false);
 
-  // 初回マウント時 ＆ 外部でlocalStorageが変わったイベントを検知して同期する
   useEffect(() => {
     setIsMounted(true);
     
@@ -53,7 +51,6 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
 
     syncFavoriteState();
 
-    // 🌟ドヤポイント: カスタムイベントをリッスンして、別コンポーネントの変化もリアルタイム検知
     window.addEventListener("koge_favorites_updated", syncFavoriteState);
     return () => window.removeEventListener("koge_favorites_updated", syncFavoriteState);
   }, [movie.id]);
@@ -69,7 +66,6 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextFavorites));
     setIsFavorite(!alreadyFavorite);
 
-    // 🌟ドヤポイント: localStorageを更新したことをサイト全体に通知（ブロードキャスト）
     window.dispatchEvent(new Event("koge_favorites_updated"));
 
     setIsAnimating(true);
@@ -78,12 +74,12 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
     }, 180);
   }
 
-  // 🌟マウントされる前（SSR時）は、レイアウトが崩れないように中立なボタンを置いてチラつきを完全に防ぐ
+  // マウント前のスケルトンも四角いモダン形状に合わせる
   if (!isMounted) {
     return (
-      <div className="inline-flex h-12 w-44 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 text-slate-500 opacity-50">
-        <Heart className="h-5 w-5" />
-        読み込み中...
+      <div className="inline-flex h-10 w-40 items-center justify-center gap-2 rounded-xl border border-white/5 bg-slate-900/10 text-slate-600 opacity-40">
+        <Heart className="h-4 w-4" />
+        <span className="text-[10px] font-medium tracking-widest uppercase">LOADING</span>
       </div>
     );
   }
@@ -93,15 +89,24 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
       type="button"
       onClick={handleToggleFavorite}
       aria-pressed={isFavorite}
-      className={`inline-flex h-12 w-44 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-black tracking-wide transition-all duration-300 antialiased select-none ${
+      /* 🌟 変更ポイント: 
+         - h-12 ➔ h-10, w-44 ➔ w-40 にして少しシャープに凝縮
+         - rounded-full ➔ rounded-xl にして角丸のトーンを統一
+         - font-black text-sm ➔ font-medium text-[11px] tracking-widest にして文字に圧倒的な品を出す
+      */
+      className={`inline-flex h-10 w-40 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 transition-all duration-300 antialiased font-medium text-[11px] tracking-widest uppercase ${
         isFavorite
-          ? "border-rose-500/40 bg-rose-500/10 text-rose-300 shadow-lg shadow-rose-950/20 hover:bg-rose-500/20"
-          : "border-white/10 bg-white/5 text-slate-300 hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400"
-      } ${isAnimating ? "scale-110" : "scale-100 active:scale-95"}`}
+          ? "border-sky-500/20 bg-sky-500/10 text-sky-400 shadow-xl shadow-sky-950/20 hover:bg-sky-500/20"
+          : "border-white/10 bg-slate-900/20 text-slate-300 hover:border-white/20 hover:bg-white/5 hover:text-white"
+      } ${isAnimating ? "scale-105" : "scale-100 active:scale-98"}`}
     >
-      {/* fill-current のカラーをTailwindクラス側でより鮮やかに制御 */}
-      <Heart className={`h-5 w-5 transition-transform duration-300 ${isFavorite ? "fill-rose-400 text-rose-400" : ""}`} />
-      {isFavorite ? "SAVED" : "ADD TO LIST"}
+      {/* 🌟 変更ポイント: ハートも塗り潰しではなく、skyの細いラインで光るシネマティック仕様に */}
+      <Heart 
+        className={`h-4 w-4 transition-all duration-300 ${
+          isFavorite ? "fill-sky-400/20 text-sky-400 stroke-[2.2]" : "stroke-[1.8]"
+        }`} 
+      />
+      {isFavorite ? "IN MY LIST" : "ADD TO LIST"}
     </button>
   );
 }

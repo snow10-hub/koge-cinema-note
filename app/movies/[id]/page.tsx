@@ -34,7 +34,7 @@ export default async function MovieDetailPage({
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-200 selection:bg-sky-500/30">
-      
+
       {/* 背景の巨大バックドロップ：不透明度を 35% ➔ 15% に落としてクールな闇を強調 */}
       {backdropUrl && (
         <div
@@ -53,7 +53,7 @@ export default async function MovieDetailPage({
         <Header />
 
         <div className="mx-auto max-w-5xl w-full px-6 pb-24 pt-6 flex-1">
-          
+
           {/* バックリンク：サイズをキュッと小さく（text-xs） */}
           <Link
             href="/"
@@ -64,7 +64,7 @@ export default async function MovieDetailPage({
 
           {/* グリッド幅を 320px ➔ 240px に絞ってスマートな比率に */}
           <section className="mt-8 grid gap-8 md:grid-cols-[240px_1fr] md:items-start">
-            
+
             {/* ポスターエリア：余計な膨らみを無くしシャープに */}
             <div className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/40 shadow-2xl shadow-black/80">
               {posterUrl ? (
@@ -85,16 +85,18 @@ export default async function MovieDetailPage({
 
             {/* 詳細情報カード：背景の透過度を上げてスッキリ、線の色を細く */}
             <div className="rounded-2xl border border-slate-800/60 bg-slate-900/20 p-6 md:p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">
-              
+
               <p className="text-[10px] font-black tracking-[0.3em] text-sky-400 uppercase">
                 MOVIE DETAIL
               </p>
 
-              {/* タイトル部：巨大さを抑え、スマートで強固な文字サイズ（3xl〜4xl）へ変更 */}
+              {/* タイトル部：大看板と完全にシンクロさせた、上品で色気のある特大フォントへ変更 */}
               <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-white/5 pb-5">
-                <h1 className="text-2xl font-black tracking-tight text-white md:text-3xl lg:text-4xl leading-tight">
+                {/* 🌟 修正ポイント: font-black ➔ font-medium に落とし、大看板と同じスマートな佇まいに統一 */}
+                <h1 className="text-2xl font-medium tracking-tight text-white md:text-3xl lg:text-4xl leading-tight">
                   {movie.title}
                 </h1>
+
 
                 {/* ボタンのサイズも内部で引き締まっているので綺麗に並びます */}
                 <div className="shrink-0">
@@ -110,10 +112,12 @@ export default async function MovieDetailPage({
                 </div>
               </div>
 
-              {/* キャッチコピー：文字を小さくして、さりげないオシャレ感に変貌 */}
+              {/* キャッチコピー：映画の字幕やパンフの1節のような、色気のあるセリフ体スタイル */}
               {movie.tagline && (
-                <p className="mt-4 text-xs italic font-medium tracking-wide text-slate-400 border-l-2 border-sky-500/30 pl-3 py-0.5">
-                  “{movie.tagline}”
+                <p className="mt-6 text-[13px] font-serif italic font-light tracking-widest leading-relaxed text-slate-300/90 antialiased">
+                  <span className="relative inline-block pl-3 before:absolute before:left-0 before:top-0 before:h-full before:w-[1px] before:bg-gradient-to-b before:from-sky-500/40 before:to-transparent">
+                    {movie.tagline}
+                  </span>
                 </p>
               )}
 
