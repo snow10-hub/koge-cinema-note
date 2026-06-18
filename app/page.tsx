@@ -30,12 +30,8 @@ function formatMovies(tmdbMovies: TmdbMovie[]): Movie[] {
     title: movie.title,
     year: movie.release_date ? movie.release_date.slice(0, 4) : "----",
     rating: Math.round(movie.vote_average * 10) / 10,
-    poster: movie.poster_path
-      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-      : null,
-    backdrop: movie.backdrop_path
-      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-      : null,
+    poster: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
+    backdrop: movie.backdrop_path ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}` : null,
   }));
 }
 
@@ -51,27 +47,36 @@ export default function Home() {
       setIsLoading(true);
       setErrorMessage("");
       setHasSearched(false);
-
       const response = await fetch("/api/trending");
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch trending movies");
-      }
+      if (!response.ok) throw new Error("Failed to fetch trending movies");
 
       const data: { results: TmdbMovie[] } = await response.json();
       setMovies(formatMovies(data.results));
-    } catch {
-      setErrorMessage(
-        "話題作の取得に失敗しました。時間をおいて再度お試しください。"
-      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("話題作の取得に失敗しました。時間をおいて再度お試しください。");
     } finally {
       setIsLoading(false);
     }
   }
 
+  // 🌟 修正ポイント: 
+  // 初回マウント時だけでなく、詳細ページでお気に入りが変更された時も
+  // 必要であれば裏側でイベントを検知して安全に動く状態にします。
   useEffect(() => {
     fetchTrendingMovies();
-  }, []);
+
+    // 他のページでお気に入り操作が行われた時に、トップページの挙動が不整合を起こさないようにイベントを受け流す設定
+    const handleGlobalUpdate = () => {
+      // 検索中ではない（初期のトレンド表示の）場合のみ、最新の状態に安全に同期させる
+      if (!hasSearched) {
+        fetchTrendingMovies();
+      }
+    };
+
+    window.addEventListener("koge_favorites_updated", handleGlobalUpdate);
+    return () => window.removeEventListener("koge_favorites_updated", handleGlobalUpdate);
+  }, [hasSearched]);
 
   async function handleSearch() {
     if (!searchTerm.trim()) {
@@ -84,62 +89,58 @@ export default function Home() {
       setErrorMessage("");
       setHasSearched(true);
 
-      const response = await fetch(
-        `/api/search?query=${encodeURIComponent(searchTerm)}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch movies");
-      }
+      const response = await fetch(`/api/search?query=${encodeURIComponent(searchTerm)}`);
+      if (!response.ok) throw new Error("Failed to fetch movies");
 
       const data: { results: TmdbMovie[] } = await response.json();
       setMovies(formatMovies(data.results));
-    } catch {
-      setErrorMessage(
-        "映画データの取得に失敗しました。時間をおいて再度お試しください。"
-      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("映画データの取得に失敗しました。時間をおいて再度お試しください。");
     } finally {
       setIsLoading(false);
     }
   }
 
   const heroBackdrop = movies.find((movie) => movie.backdrop)?.backdrop ?? null;
-  const movieListTitle = hasSearched ? "Search Results" : "Trending This Week";
+  const movieListTitle = hasSearched ? "SEARCH RESULTS" : "TRENDING THIS WEEK";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+    <main className="relative min-h-screen bg-slate-950 text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.14),_transparent_28%),linear-gradient(180deg,_rgba(2,6,23,0.2),_#020617_70%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sky-500/10 to-transparent" />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
-
-        <section className="mx-auto flex max-w-6xl flex-col px-6 pb-24 pt-8 md:pt-10">
-          <Hero
-            searchTerm={searchTerm}
-            onSearchTermChange={setSearchTerm}
-            onSearch={handleSearch}
-            isLoading={isLoading}
-            backdropUrl={heroBackdrop}
-          />
-
+        
+        <Hero
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
+          onSearch={handleSearch}
+          isLoading={isLoading}
+          backdropUrl={heroBackdrop}
+        />
+        
+        <div className="flex-1 pb-24">
           {errorMessage && (
-            <p className="mt-8 rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-200">
-              {errorMessage}
-            </p>
+            <div className="mx-auto max-w-6xl px-6 mt-8">
+              <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-200">
+                {errorMessage}
+              </p>
+            </div>
           )}
 
           {isLoading ? (
-            <div className="mt-20 rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-12 text-center">
-              <p className="text-lg font-bold text-white">検索中...</p>
-              <p className="mt-3 text-sm text-slate-400">
-                映画データを取得しています。
-              </p>
+            <div className="mx-auto max-w-6xl px-6 mt-16 md:mt-24">
+              <div className="rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-12 text-center backdrop-blur-md">
+                <p className="text-lg font-bold text-white">検索中...</p>
+                <p className="mt-3 text-sm text-slate-400">映画データを取得しています。</p>
+              </div>
             </div>
           ) : (
             <MovieList movies={movies} title={movieListTitle} />
           )}
-        </section>
+        </div>
 
         <Footer />
       </div>

@@ -16,33 +16,40 @@ export function Hero({
   backdropUrl,
 }: HeroProps) {
   return (
-    <section id="search" className="relative overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl shadow-black/40">
+    <section
+      id="search"
+      className="relative h-[50vh] w-full overflow-hidden bg-slate-950 md:h-[60vh] antialiased"
+    >
+      {/* 背景画像レイヤー */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-45"
+        className="absolute inset-0 bg-cover bg-center transition-all duration-700"
         style={{
           backgroundImage: backdropUrl ? `url('${backdropUrl}')` : undefined,
         }}
       />
 
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/20" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/20" />
+      {/* プロのグラデーションベール（横と縦をシンプルに統合・最適化） */}
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
-      <div className="relative z-10 px-8 py-20 md:px-16 md:py-28">
-        <p className="mb-5 text-sm font-bold tracking-[0.3em] text-sky-300">
+      {/* 左右のパディングを px-6 md:px-8 に統一。ヘッダーやMovieListと完全に一直線に揃う */}
+      <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col justify-center px-6 md:px-8">
+        
+        <p className="mb-4 text-sm font-bold tracking-[0.16em] text-sky-300">
           MOVIE NOTE
         </p>
 
-        <h2 className="max-w-xl text-4xl font-bold leading-tight tracking-tight text-white md:text-6xl">
+        <h2 className="max-w-xl text-4xl font-bold leading-[1.15] tracking-tight text-white drop-shadow-xl md:text-6xl">
           次に観る、
           <br />
           その一本を。
         </h2>
 
         <p className="mt-6 max-w-xl text-base leading-8 text-slate-300">
-          映画との出会いを、もっと特別に。観たい作品も、心に残った感想も、
-          ひとつの場所に記録する映画ノート。
+          映画との出会いを、もっと特別に。
         </p>
 
+        {/* 検索フォーム */}
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -61,7 +68,7 @@ export function Hero({
           <button
             type="submit"
             disabled={isLoading}
-            className="cursor-pointer disabled:cursor-not-allowed border-l border-slate-700 px-5 py-4 text-xl text-white transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer border-l border-slate-700 px-5 py-4 text-xl text-white transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="映画を検索"
           >
             <Search size={22} strokeWidth={2.2} />

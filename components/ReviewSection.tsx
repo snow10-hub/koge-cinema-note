@@ -21,86 +21,69 @@ function getStorageKey(movieId: number) {
   return `${STORAGE_KEY_PREFIX}-${movieId}`;
 }
 
-function getStoredReviews(movieId: number): Review[] {
-  const rawReviews = localStorage.getItem(getStorageKey(movieId));
-
-  if (!rawReviews) {
-    return [];
-  }
-
-  try {
-    return JSON.parse(rawReviews) as Review[];
-  } catch {
-    return [];
-  }
-}
-
 export function ReviewSection({ movieId }: ReviewSectionProps) {
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
-  const [reviews, setReviews] = useState<Review[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [revealedReviewIds, setRevealedReviewIds] = useState<Set<number>>(
-    new Set()
-  );
+  
+  // 🌟バグ回避: SSRとの整合性を保つため、初期値は絶対に空配列にする
+  const [reviews, setReviews] = useState<Review[]>([]);
+  // 開閉管理をシンプルなID配列に変更してコードを簡略化
+  const [revealedReviewIds, setRevealedReviewIds] = useState<number[]>([]);
 
+  // 🌟安全なデータ読み込み: コンポーネントがブラウザにマウントされた後に初めてlocalStorageを読む
   useEffect(() => {
-    setReviews(getStoredReviews(movieId));
+    const rawReviews = localStorage.getItem(getStorageKey(movieId));
+    if (rawReviews) {
+      try {
+        setReviews(JSON.parse(rawReviews) as Review[]);
+      } catch (error) {
+        console.error(error);
+        setReviews([]);
+      }
+    } else {
+      setReviews([]);
+    }
+    setRevealedReviewIds([]); // 映画が変わったら開閉状態もリセット
   }, [movieId]);
 
   const trimmedReview = reviewText.trim();
   const isOverLimit = reviewText.length > MAX_REVIEW_LENGTH;
-  const canSubmit =
-    trimmedReview.length > 0 && rating > 0 && !isOverLimit && !isSubmitting;
+  const canSubmit = trimmedReview.length > 0 && rating > 0 && !isOverLimit && !isSubmitting;
 
+  // 平均点の計算
   const averageRating = useMemo(() => {
-    if (reviews.length === 0) {
-      return 0;
-    }
-
+    if (reviews.length === 0) return 0;
     const total = reviews.reduce((sum, review) => sum + review.rating, 0);
     return Math.round((total / reviews.length) * 10) / 10;
   }, [reviews]);
 
+  // 各星ごとの分布グラフ用データ作成
   const ratingSummary = useMemo(() => {
     return [5, 4, 3, 2, 1].map((score) => {
       const count = reviews.filter((review) => review.rating === score).length;
-      const percentage =
-        reviews.length === 0 ? 0 : Math.round((count / reviews.length) * 100);
-
-      return {
-        score,
-        count,
-        percentage,
-      };
+      const percentage = reviews.length === 0 ? 0 : Math.round((count / reviews.length) * 100);
+      return { score, count, percentage };
     });
   }, [reviews]);
 
+  // ネタバレ表示のトグルスイッチ
   function toggleReveal(reviewId: number) {
-    setRevealedReviewIds((currentIds) => {
-      const nextIds = new Set(currentIds);
-
-      if (nextIds.has(reviewId)) {
-        nextIds.delete(reviewId);
-      } else {
-        nextIds.add(reviewId);
-      }
-
-      return nextIds;
-    });
+    setRevealedReviewIds((current) =>
+      current.includes(reviewId)
+        ? current.filter((id) => id !== reviewId)
+        : [...current, reviewId]
+    );
   }
 
+  // レビュー送信処理
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (!canSubmit) {
-      return;
-    }
+    if (!canSubmit) return;
 
     setIsSubmitting(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 600)); // 送信シミュレーション
 
     const newReview: Review = {
       id: Date.now(),
@@ -111,8 +94,8 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
     };
 
     const nextReviews = [newReview, ...reviews];
-
     localStorage.setItem(getStorageKey(movieId), JSON.stringify(nextReviews));
+    
     setReviews(nextReviews);
     setReviewText("");
     setRating(0);
@@ -121,75 +104,68 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
   }
 
   return (
-    <section className="mt-10 rounded-3xl border border-white/10 bg-slate-950/70 p-8 shadow-2xl shadow-black/40 backdrop-blur-md">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <section className="mt-12 rounded-3xl border border-white/10 bg-slate-950/40 p-6 md:p-8 shadow-2xl shadow-black/50 backdrop-blur-md antialiased">
+      {/* 見出し */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-white/5 pb-5">
         <div>
-          <p className="text-sm font-bold tracking-[0.3em] text-sky-300">
+          <p className="text-[10px] font-bold tracking-[0.3em] text-sky-400 uppercase">
             MY REVIEW
           </p>
-          <h2 className="mt-3 text-2xl font-bold">映画メモを書く</h2>
+          <h2 className="mt-1.5 text-xl font-bold tracking-wide text-white md:text-2xl">映画メモを残す</h2>
         </div>
-
-        <p className="text-sm text-slate-400">
-          星評価とネタバレ配慮つきで感想を残せます。
-        </p>
+        <p className="text-xs text-slate-400">星評価とネタバレ配慮つきで感想を保存できます。</p>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900/60 p-5">
-        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+      {/* レビュー統計エリア */}
+      <div className="mt-6 rounded-2xl border border-white/5 bg-slate-900/20 p-5 backdrop-blur-sm">
+        <div className="flex items-end justify-between">
           <div>
-            <p className="text-sm text-slate-400">平均評価</p>
-            <p className="mt-1 text-3xl font-bold text-slate-100">
-              {averageRating > 0 ? averageRating : "-"}{" "}
-              <span className="text-base text-slate-400">/ 5</span>
+            <p className="text-xs font-bold tracking-wider text-slate-500 uppercase">AVERAGE RATING</p>
+            <p className="mt-1 text-3xl font-black text-slate-100">
+              {averageRating > 0 ? averageRating.toFixed(1) : "-"}{" "}
+              <span className="text-sm font-normal text-slate-500">/ 5.0</span>
             </p>
           </div>
-
-          <p className="text-sm text-slate-400">{reviews.length} reviews</p>
+          <p className="text-xs font-bold text-slate-400 tracking-wide">{reviews.length} REVIEWS</p>
         </div>
 
-        <div className="mt-5 space-y-3">
+        {/* 5ツ星の棒グラフ */}
+        <div className="mt-5 space-y-2.5">
           {ratingSummary.map((item) => (
-            <div
-              key={item.score}
-              className="grid grid-cols-[56px_1fr_48px] items-center gap-3 text-sm"
-            >
-              <span className="text-slate-300">{item.score} ★</span>
-
-              <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+            <div key={item.score} className="grid grid-cols-[48px_1fr_32px] items-center gap-3 text-xs font-bold">
+              <span className="text-slate-400 text-right">{item.score} ★</span>
+              <div className="h-1.5 overflow-hidden rounded-full bg-slate-900">
                 <div
                   className="h-full rounded-full bg-sky-400 transition-all duration-500"
                   style={{ width: `${item.percentage}%` }}
                 />
               </div>
-
-              <span className="text-right text-slate-400">{item.count}</span>
+              <span className="text-right text-slate-500">{item.count}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-6">
+      {/* 投稿フォーム */}
+      <form onSubmit={handleSubmit} className="mt-8">
         <div>
-          <p className="mb-2 text-sm font-bold text-slate-300">あなたの評価</p>
-
-          <div className="flex items-center gap-2">
+          <p className="mb-2 text-xs font-bold tracking-wider text-slate-400">YOUR RATING</p>
+          <div className="flex items-center gap-1.5">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 type="button"
                 onClick={() => setRating(star)}
-                className={`cursor-pointer text-3xl transition hover:scale-110 ${
-                  star <= rating ? "text-sky-300" : "text-slate-700"
+                className={`cursor-pointer text-2xl transition-all duration-200 active:scale-95 hover:scale-110 ${
+                  star <= rating ? "text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]" : "text-slate-800"
                 }`}
                 aria-label={`${star}点をつける`}
               >
                 ★
               </button>
             ))}
-
-            <span className="ml-2 text-sm text-slate-400">
-              {rating > 0 ? `${rating} / 5` : "未評価"}
+            <span className="ml-2 text-xs font-bold text-slate-500">
+              {rating > 0 ? `${rating} / 5` : "SELECT STAR"}
             </span>
           </div>
         </div>
@@ -198,91 +174,86 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
           value={reviewText}
           onChange={(event) => setReviewText(event.target.value)}
           placeholder="この映画の好きだったところ、余韻、ツッコミどころなどを書いてみる..."
-          className="mt-5 min-h-36 w-full resize-none rounded-2xl border border-slate-800 bg-slate-900/80 p-4 text-sm leading-7 text-white outline-none transition placeholder:text-slate-500 focus:border-sky-500/70"
+          className="mt-5 min-h-32 w-full resize-none rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-sm leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500/50 focus:bg-slate-900/60"
         />
 
-        <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <label className="flex items-center gap-2 text-sm text-slate-300">
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <label className="flex w-fit cursor-pointer items-center gap-2 text-xs font-bold text-slate-400 select-none hover:text-slate-300">
             <input
               type="checkbox"
               checked={isSpoiler}
               onChange={(event) => setIsSpoiler(event.target.checked)}
-              className="h-4 w-4 accent-sky-500"
+              className="h-4 w-4 rounded border-slate-800 bg-slate-900 accent-sky-500"
             />
             ネタバレを含む
           </label>
 
-          <p
-            className={`text-sm ${
-              isOverLimit ? "text-red-300" : "text-slate-400"
-            }`}
-          >
+          <p className={`text-xs font-bold ${isOverLimit ? "text-red-400" : "text-slate-500"}`}>
             {reviewText.length} / {MAX_REVIEW_LENGTH}文字
           </p>
         </div>
 
         {isOverLimit && (
-          <p className="mt-3 text-sm text-red-300">
-            200文字以内で入力してください。
-          </p>
+          <p className="mt-2 text-xs font-medium text-red-400">200文字以内で入力してください。</p>
         )}
 
         <button
           type="submit"
           disabled={!canSubmit}
-          className="mt-5 inline-flex cursor-pointer items-center justify-center rounded-full bg-sky-500 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-5 inline-flex cursor-pointer items-center justify-center rounded-full bg-slate-100 px-6 py-2.5 text-xs font-black tracking-widest text-slate-950 transition-all duration-300 hover:bg-sky-400 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-30 disabled:scale-100 disabled:bg-slate-700 disabled:text-slate-400"
         >
-          {isSubmitting ? "投稿中..." : "レビューを追加"}
+          {isSubmitting ? "STORING..." : "ADD REVIEW"}
         </button>
       </form>
 
-      <div className="mt-8 space-y-4">
+      {/* レビュー一覧表示 */}
+      <div className="mt-10 space-y-4 border-t border-white/5 pt-8">
         {reviews.length === 0 ? (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-sm text-slate-400">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-5 text-xs font-medium text-slate-500 text-center">
             まだレビューはありません。最初の映画メモを書いてみましょう。
           </div>
         ) : (
           reviews.map((review) => {
-            const isRevealed = revealedReviewIds.has(review.id);
+            const isRevealed = revealedReviewIds.includes(review.id);
 
             return (
-              <article
-                key={review.id}
-                className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5"
-              >
-                <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-slate-400">
-                  <span>{review.createdAt}</span>
-
-                  <span className="text-sky-300">
-                    {"★".repeat(review.rating)}
-                    <span className="text-slate-700">
-                      {"★".repeat(5 - review.rating)}
+              <article key={review.id} className="rounded-2xl border border-slate-800/60 bg-slate-900/20 p-5 shadow-sm">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-3 text-[11px] font-bold text-slate-500">
+                  <div className="flex items-center gap-3">
+                    <span>{review.createdAt}</span>
+                    {/* 🌟 改善: ループ処理で星を一発描画。Tailwindで色をスマートに制御 */}
+                    <span className="flex gap-0.5 tracking-none text-xs">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} className={star <= review.rating ? "text-sky-400" : "text-slate-800"}>
+                          ★
+                        </span>
+                      ))}
                     </span>
-                  </span>
+                  </div>
 
                   {review.isSpoiler && (
-                    <span className="rounded-full border border-red-400/40 bg-red-500/10 px-3 py-1 text-red-200">
+                    <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-0.5 text-[9px] font-black tracking-widest text-red-400 uppercase">
                       SPOILER
                     </span>
                   )}
                 </div>
 
                 {review.isSpoiler && !isRevealed ? (
-                  <div>
-                    <p className="text-sm text-slate-300">
+                  <div className="rounded-xl bg-slate-950/40 border border-slate-900 p-4 text-center">
+                    <p className="text-xs font-medium text-slate-400">
                       このレビューにはネタバレが含まれています。
                     </p>
                     <button
                       type="button"
                       onClick={() => toggleReveal(review.id)}
-                      className="mt-3 cursor-pointer text-sm font-bold text-sky-300 transition hover:text-sky-200"
+                      className="mt-2 cursor-pointer text-xs font-black tracking-widest text-sky-400 transition hover:text-sky-300 uppercase"
                     >
-                      内容を表示する
+                      [ SHOW CONTENT ]
                     </button>
                   </div>
                 ) : (
-                  <div>
-                    <p className="whitespace-pre-wrap break-words leading-7 text-slate-200">
+                  <div className="space-y-3">
+                    <p className="whitespace-pre-wrap break-words text-sm leading-7 text-slate-300">
                       {review.text}
                     </p>
 
@@ -290,9 +261,9 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
                       <button
                         type="button"
                         onClick={() => toggleReveal(review.id)}
-                        className="mt-3 cursor-pointer text-sm font-bold text-sky-300 transition hover:text-sky-200"
+                        className="cursor-pointer text-xs font-black tracking-widest text-slate-500 transition hover:text-sky-400 uppercase"
                       >
-                        内容を隠す
+                        [ HIDE CONTENT ]
                       </button>
                     )}
                   </div>

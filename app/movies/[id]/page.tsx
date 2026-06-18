@@ -49,6 +49,7 @@ export default async function MovieDetailPage({
       <div className="relative z-10">
         <Header />
 
+<div className="mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-8 lg:px-10">
         <Link
           href="/"
           className="text-sm font-medium text-sky-300 transition hover:text-sky-200"
@@ -138,6 +139,7 @@ export default async function MovieDetailPage({
           </div>
         </section>
         <ReviewSection movieId={movie.id} />
+      </div>
       </div>
       <Footer />
     </main>
