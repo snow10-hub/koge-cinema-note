@@ -33,40 +33,32 @@ export default async function MovieDetailPage({
   const rating = Math.round(movie.vote_average * 10) / 10;
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-200 selection:bg-sky-500/30">
-
-      {/* 背景の巨大バックドロップ：不透明度を 35% ➔ 15% に落としてクールな闇を強調 */}
+    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100 selection:bg-sky-500/30">
       {backdropUrl && (
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-15 scale-105 pointer-events-none filter blur-[2px]"
+          className="pointer-events-none absolute inset-0 scale-105 bg-cover bg-center opacity-15 blur-[2px]"
           style={{
             backgroundImage: `url('${backdropUrl}')`,
           }}
         />
       )}
 
-      {/* グラデーションをより深くして映画館の静寂を演出 */}
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/60" />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50" />
 
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex min-h-screen flex-col">
         <Header />
 
-        <div className="mx-auto max-w-5xl w-full px-6 pb-24 pt-6 flex-1">
-
-          {/* バックリンク：サイズをキュッと小さく（text-xs） */}
+        <div className="mx-auto flex-1 w-full max-w-5xl px-6 pb-24 pt-6">
           <Link
             href="/"
-            className="inline-flex items-center text-xs font-bold tracking-wider text-slate-500 uppercase transition-colors hover:text-sky-400 select-none"
+            className="inline-flex select-none items-center text-xs font-bold uppercase tracking-wider text-slate-400 transition-colors hover:text-sky-400"
           >
             ← Back to discover
           </Link>
 
-          {/* グリッド幅を 320px ➔ 240px に絞ってスマートな比率に */}
           <section className="mt-8 grid gap-8 md:grid-cols-[240px_1fr] md:items-start">
-
-            {/* ポスターエリア：余計な膨らみを無くしシャープに */}
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/40 shadow-2xl shadow-black/80">
+            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-slate-700/80 bg-slate-900/65 shadow-2xl shadow-black/70">
               {posterUrl ? (
                 <Image
                   src={posterUrl}
@@ -77,28 +69,22 @@ export default async function MovieDetailPage({
                   priority
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-slate-600 font-bold uppercase tracking-wider">
+                <div className="flex h-full w-full items-center justify-center text-xs font-bold uppercase tracking-wider text-slate-500">
                   No Poster
                 </div>
               )}
             </div>
 
-            {/* 詳細情報カード：背景の透過度を上げてスッキリ、線の色を細く */}
-            <div className="rounded-2xl border border-slate-800/60 bg-slate-900/20 p-6 md:p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">
-
-              <p className="text-[10px] font-black tracking-[0.3em] text-sky-400 uppercase">
+            <div className="rounded-xl border border-slate-600/80 bg-slate-900/65 p-6 shadow-2xl shadow-black/70 backdrop-blur-md md:p-8">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-sky-400">
                 MOVIE DETAIL
               </p>
 
-              {/* タイトル部：大看板と完全にシンクロさせた、上品で色気のある特大フォントへ変更 */}
-              <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-white/5 pb-5">
-                {/* 🌟 修正ポイント: font-black ➔ font-medium に落とし、大看板と同じスマートな佇まいに統一 */}
-                <h1 className="text-2xl font-medium tracking-tight text-white md:text-3xl lg:text-4xl leading-tight">
+              <div className="mt-3 flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                <h1 className="text-2xl font-medium leading-tight tracking-tight text-white md:text-3xl lg:text-4xl">
                   {movie.title}
                 </h1>
 
-
-                {/* ボタンのサイズも内部で引き締まっているので綺麗に並びます */}
                 <div className="shrink-0">
                   <FavoriteButton
                     movie={{
@@ -112,39 +98,36 @@ export default async function MovieDetailPage({
                 </div>
               </div>
 
-              {/* キャッチコピー：映画の字幕やパンフの1節のような、色気のあるセリフ体スタイル */}
               {movie.tagline && (
-                <p className="mt-6 text-[13px] font-serif italic font-light tracking-widest leading-relaxed text-slate-300/90 antialiased">
-                  <span className="relative inline-block pl-3 before:absolute before:left-0 before:top-0 before:h-full before:w-[1px] before:bg-gradient-to-b before:from-sky-500/40 before:to-transparent">
+                <p className="mt-6 text-sm font-light leading-relaxed tracking-wide text-slate-200/90 antialiased">
+                  <span className="relative inline-block pl-3 before:absolute before:left-0 before:top-0 before:h-full before:w-[1px] before:bg-gradient-to-b before:from-sky-400/60 before:to-transparent">
                     {movie.tagline}
                   </span>
                 </p>
               )}
 
-              {/* メタタグ群：余白（px-4 py-2 ➔ px-3 py-1）を極限まで薄くシャープに */}
-              <div className="mt-6 flex flex-wrap gap-2 text-[11px] font-bold tracking-wider text-slate-400">
-                <span className="rounded-full border border-slate-800 bg-slate-900/30 px-3 py-1">
+              <div className="mt-6 flex flex-wrap gap-2 text-[11px] font-bold tracking-wider text-slate-100">
+                <span className="rounded-full border border-slate-700/80 bg-slate-800/70 px-3 py-1">
                   {releaseYear}
                 </span>
 
                 {movie.runtime && (
-                  <span className="rounded-full border border-slate-800 bg-slate-900/30 px-3 py-1">
+                  <span className="rounded-full border border-slate-700/80 bg-slate-800/70 px-3 py-1">
                     {movie.runtime} MIN
                   </span>
                 )}
 
-                <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-sky-400 font-black">
+                <span className="rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 font-black text-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.12)]">
                   TMDB ★ {rating.toFixed(1)}
                 </span>
               </div>
 
-              {/* ジャンルタグ */}
               {movie.genres.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {movie.genres.map((genre) => (
                     <span
                       key={genre.id}
-                      className="rounded bg-slate-900/60 border border-slate-800/40 px-2 py-0.5 text-[10px] font-bold text-slate-400 tracking-wide uppercase"
+                      className="rounded border border-slate-700/80 bg-slate-800/70 px-2 py-0.5 text-[10px] font-bold tracking-wide text-slate-200"
                     >
                       {genre.name}
                     </span>
@@ -152,18 +135,18 @@ export default async function MovieDetailPage({
                 </div>
               )}
 
-              {/* あらすじ：文字サイズを落とし、フォントの色を薄く（slate-400）して長文の圧迫感を排除 */}
-              <div className="mt-8 border-t border-white/5 pt-6">
-                <h2 className="text-xs font-black tracking-widest text-slate-400 uppercase">Overview</h2>
-                <p className="mt-3 text-xs md:text-sm leading-relaxed text-slate-400 tracking-wide whitespace-pre-wrap">
+              <div className="mt-8">
+                <h2 className="text-xs font-black uppercase tracking-widest text-slate-200">
+                  Overview
+                </h2>
+
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-200">
                   {movie.overview || "あらすじ情報はありません。"}
                 </p>
               </div>
-
             </div>
           </section>
 
-          {/* 下部レビューセクション */}
           <ReviewSection movieId={movie.id} />
         </div>
 

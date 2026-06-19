@@ -74,12 +74,11 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
     }, 180);
   }
 
-  // マウント前のスケルトンも四角いモダン形状に合わせる
   if (!isMounted) {
     return (
-      <div className="inline-flex h-10 w-40 items-center justify-center gap-2 rounded-xl border border-white/5 bg-slate-900/10 text-slate-600 opacity-40">
-        <Heart className="h-4 w-4" />
-        <span className="text-[10px] font-medium tracking-widest uppercase">LOADING</span>
+      <div className="inline-flex h-9.5 w-44 items-center justify-center gap-2 rounded-xl border border-sky-500/20 bg-slate-900/10 text-sky-500/40 opacity-40">
+        <Heart className="h-3.5 w-3.5" />
+        <span className="text-xs font-bold tracking-wider">読み込み中</span>
       </div>
     );
   }
@@ -89,24 +88,23 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
       type="button"
       onClick={handleToggleFavorite}
       aria-pressed={isFavorite}
-      /* 🌟 変更ポイント: 
-         - h-12 ➔ h-10, w-44 ➔ w-40 にして少しシャープに凝縮
-         - rounded-full ➔ rounded-xl にして角丸のトーンを統一
-         - font-black text-sm ➔ font-medium text-[11px] tracking-widest にして文字に圧倒的な品を出す
+      /* 🌟 改善ポイント:
+         - h-9.5 (38px) & w-44 に引き締めて、細身でシャープなシルエットに。
+         - 入れる前：いつもの青（border-sky-500/50）で、枠も文字もハッキリ鮮やかに。
+         - 入れた後：大人可愛いローズピンクにパッと切り替わります。
       */
-      className={`inline-flex h-10 w-40 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 transition-all duration-300 antialiased font-medium text-[11px] tracking-widest uppercase ${
+      className={`inline-flex h-9.5 w-44 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 transition-all duration-300 antialiased font-bold text-xs tracking-wider ${
         isFavorite
-          ? "border-sky-500/20 bg-sky-500/10 text-sky-400 shadow-xl shadow-sky-950/20 hover:bg-sky-500/20"
-          : "border-white/10 bg-slate-900/20 text-slate-300 hover:border-white/20 hover:bg-white/5 hover:text-white"
-      } ${isAnimating ? "scale-105" : "scale-100 active:scale-98"}`}
+          ? "border-rose-500/60 bg-rose-500/10 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.12)] hover:bg-rose-500/20"
+          : "border-sky-500/50 bg-slate-900/50 text-sky-400 hover:border-sky-400 hover:bg-sky-500/10 hover:text-sky-300"
+      } ${isAnimating ? "scale-104" : "scale-100 active:scale-98"}`}
     >
-      {/* 🌟 変更ポイント: ハートも塗り潰しではなく、skyの細いラインで光るシネマティック仕様に */}
       <Heart 
-        className={`h-4 w-4 transition-all duration-300 ${
-          isFavorite ? "fill-sky-400/20 text-sky-400 stroke-[2.2]" : "stroke-[1.8]"
+        className={`h-3.5 w-3.5 transition-all duration-300 ${
+          isFavorite ? "fill-rose-400/30 text-rose-400 stroke-[2.2]" : "text-sky-400 stroke-[2]"
         }`} 
       />
-      {isFavorite ? "IN MY LIST" : "ADD TO LIST"}
+      <span>{isFavorite ? "お気に入り登録中" : "お気に入りに追加"}</span>
     </button>
   );
 }
