@@ -10,7 +10,11 @@ export type TmdbMovie = {
   backdrop_path: string | null;
 };
 
-export async function searchMovies(query: string): Promise<TmdbMovie[]> {
+// 🌟 修正：引数に page を追加し、戻り値を results と total_pages のオブジェクトにする
+export async function searchMovies(
+  query: string, 
+  page: string = "1"
+): Promise<{ results: TmdbMovie[]; total_pages: number }> {
   const apiKey = process.env.TMDB_API_KEY;
 
   if (!apiKey) {
@@ -18,7 +22,7 @@ export async function searchMovies(query: string): Promise<TmdbMovie[]> {
   }
 
   if (!query.trim()) {
-    return [];
+    return { results: [], total_pages: 0 };
   }
 
   const params = new URLSearchParams({
@@ -26,6 +30,7 @@ export async function searchMovies(query: string): Promise<TmdbMovie[]> {
     query,
     language: "ja-JP",
     include_adult: "false",
+    page, // 🌟 追加：TMDBにページ番号を渡す！
   });
 
   const response = await fetch(`${TMDB_BASE_URL}/search/movie?${params}`);
@@ -36,7 +41,11 @@ export async function searchMovies(query: string): Promise<TmdbMovie[]> {
 
   const data = await response.json();
 
-  return data.results;
+  // 🌟 修正：映画のリストだけでなく、TMDBから返ってきた総ページ数も一緒に返す
+  return {
+    results: data.results,
+    total_pages: data.total_pages ?? 1,
+  };
 }
 
 

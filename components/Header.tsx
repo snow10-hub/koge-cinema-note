@@ -8,7 +8,7 @@ const bebasNeue = Bebas_Neue({
 
 // pb-1.5 を追加して、文字と下線の間に美しい「隙間」を確保
 const navLinkClass =
-  "relative pb-1.5 transition hover:text-sky-300 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-sky-400 after:transition-all after:duration-300 after:content-[''] hover:after:w-full";
+  "relative py-1.5 transition hover:text-sky-300 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-sky-400 after:transition-all after:duration-300 after:content-[''] hover:after:w-full";
 
 export function Header() {
   return (

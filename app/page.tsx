@@ -41,12 +41,21 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  
+  // 🌟 追加: 現在のページ数を管理するステート
+  const [currentPage, setCurrentPage] = useState(1);
+  // 🌟 追加: 次のページがまだ存在するかどうかを判定するフラグ (全件読み込んだらView Moreを消すため)
+  const [hasMore, setHasMore] = useState(true);
 
+  // トレンド取得 (トレンドは追加読み込み不要にするため、常に1ページ固定)
   async function fetchTrendingMovies() {
     try {
       setIsLoading(true);
       setErrorMessage("");
       setHasSearched(false);
+      setCurrentPage(1);
+      setHasMore(false); // トレンド時はView Moreを出さない
+
       const response = await fetch("/api/trending");
       if (!response.ok) throw new Error("Failed to fetch trending movies");
 
@@ -60,14 +69,12 @@ export default function Home() {
     }
   }
 
-  // 🌟 修正ポイント: 
-  // 初回マウント時だけでなく、詳細ページでお気に入りが変更された時も
-  // 必要であれば裏側でイベントを検知して安全に動く状態にします。
   useEffect(() => {
     fetchTrendingMovies();
   }, []);
 
-  async function handleSearch() {
+  // 🌟 検索関数 (第1引数に「読み込みたいページ数」を受け取るように拡張)
+  async function handleSearch(pageToFetch = 1) {
     if (!searchTerm.trim()) {
       fetchTrendingMovies();
       return;
@@ -78,11 +85,30 @@ export default function Home() {
       setErrorMessage("");
       setHasSearched(true);
 
-      const response = await fetch(`/api/search?query=${encodeURIComponent(searchTerm)}`);
+      // 🌟 APIのRouteに &page=X を渡す (API側が対応している必要があります)
+      const response = await fetch(
+        `/api/search?query=${encodeURIComponent(searchTerm)}&page=${pageToFetch}`
+      );
       if (!response.ok) throw new Error("Failed to fetch movies");
 
-      const data: { results: TmdbMovie[] } = await response.json();
-      setMovies(formatMovies(data.results));
+      const data: { results: TmdbMovie[]; total_pages?: number } = await response.json();
+      const newMovies = formatMovies(data.results);
+
+      if (pageToFetch === 1) {
+        // 🌟 初回検索時は結果を丸ごと置き換え
+        setMovies(newMovies);
+      } else {
+        // 🌟 「View More」の時は、既存の映画リストの後ろに新しい20件をガッチャンコ！
+        setMovies((prevMovies) => [...prevMovies, ...newMovies]);
+      }
+
+      // 現在のページ数をステートに保存
+      setCurrentPage(pageToFetch);
+
+      // TMDBの総ページ数（無ければデフォルト20等）と比較して、まだ次があるか判定
+      const totalPages = data.total_pages ?? 1;
+      setHasMore(pageToFetch < totalPages && data.results.length > 0);
+
     } catch (error) {
       console.error(error);
       setErrorMessage("映画データの取得に失敗しました。時間をおいて再度お試しください。");
@@ -90,6 +116,13 @@ export default function Home() {
       setIsLoading(false);
     }
   }
+
+  // 🌟 新しく「View More」ボタンを押したときの処理
+  const handleLoadMore = () => {
+    if (isLoading) return;
+    const nextPage = currentPage + 1;
+    handleSearch(nextPage);
+  };
 
   const heroBackdrop = movies.find((movie) => movie.backdrop)?.backdrop ?? null;
   const movieListTitle = hasSearched ? "SEARCH RESULTS" : "TRENDING THIS WEEK";
@@ -102,10 +135,11 @@ export default function Home() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
 
+        {/* 🌟 フォームのEnterや検索ボタンの時は「必ず1ページ目から検索」させる */}
         <Hero
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
-          onSearch={handleSearch}
+          onSearch={() => handleSearch(1)}
           isLoading={isLoading}
           backdropUrl={heroBackdrop}
         />
@@ -119,15 +153,20 @@ export default function Home() {
             </div>
           )}
 
-          {isLoading ? (
-            <div className="mx-auto max-w-6xl px-6 mt-16 md:mt-24">
-              <div className="rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-12 text-center backdrop-blur-md">
-                <p className="text-lg font-bold text-white">検索中...</p>
-                <p className="mt-3 text-sm text-slate-400">映画データを取得しています。</p>
-              </div>
+          {/* 映画リスト表示エリア */}
+          <MovieList movies={movies} title={movieListTitle} />
+
+          {/* 🌟 追加: 「View More」ボタンエリア */}
+          {hasSearched && hasMore && (
+            <div className="mt-12 flex justify-center px-6">
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoading}
+                className="w-full max-w-xs cursor-pointer rounded-xl border border-sky-500/30 bg-sky-950/20 px-6 py-3.5 text-xs font-semibold tracking-widest text-sky-400 uppercase shadow-lg shadow-sky-950/20 backdrop-blur-md transition-all duration-300 hover:border-sky-400 hover:bg-sky-500/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {isLoading ? "Loading..." : "View More"}
+              </button>
             </div>
-          ) : (
-            <MovieList movies={movies} title={movieListTitle} />
           )}
         </div>
 

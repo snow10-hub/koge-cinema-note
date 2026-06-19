@@ -63,7 +63,7 @@ export function MovieList({ movies, title }: MovieListProps) {
         </div>
       ) : (
         <>
-          {/* 🌟 大看板エリア（縦中央揃え・明るさUP版） */}
+
           {featuredMovie && (
             <Link href={`/movies/${featuredMovie.id}`} className="group block select-none">
               <article className="relative mb-10 overflow-hidden rounded-xl border border-white/10 bg-slate-900/10 shadow-2xl shadow-black/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/20">
