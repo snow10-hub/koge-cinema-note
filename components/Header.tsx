@@ -12,7 +12,7 @@ const navLinkClass =
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl antialiased">
+    <header className="sticky top-0 z-50 border-b border-white/20 bg-slate-950/80 backdrop-blur-xl antialiased">
       {/* 左右のパディングを md:px-8 でシンプルに整理。max-w-6xl との一体感を強化 */}
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-8">
         

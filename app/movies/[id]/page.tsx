@@ -33,7 +33,7 @@ export default async function MovieDetailPage({
   const rating = Math.round(movie.vote_average * 10) / 10;
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100 selection:bg-sky-500/30">
+    <main className="relative min-h-screen bg-slate-950 text-slate-100 selection:bg-sky-500/30">
       {backdropUrl && (
         <div
           className="pointer-events-none absolute inset-0 scale-105 bg-cover bg-center opacity-15 blur-[2px]"

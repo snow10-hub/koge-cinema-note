@@ -30,7 +30,7 @@ export function MovieList({ movies, title }: MovieListProps) {
   const featuredImage = featuredMovie?.backdrop ?? featuredMovie?.poster;
 
   return (
-    <section className="mx-auto mt-12 max-w-6xl px-6 text-slate-200 antialiased md:mt-16">
+    <section className="mx-auto mt-12 max-w-6xl px-6 text-slate-200 antialiased md:mt-16 md:px-8">
       <div className="mb-8 border-b border-white/5 pb-4">
         <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-sky-400">
           {isTrending ? "FEATURED" : "DISCOVER"}

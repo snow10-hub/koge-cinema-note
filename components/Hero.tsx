@@ -30,7 +30,6 @@ export function Hero({
     >
       {/* 🌟 背景エリア */}
       {showMovieBackdrop ? (
-        // 1️⃣ 映画が検索された後の動的な背景
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-50 scale-100 pointer-events-none filter blur-[0.5px]"
           style={{
@@ -38,7 +37,6 @@ export function Hero({
           }}
         />
       ) : (
-        // 2️⃣ 検索前の「規定の状態」：デフォルトの画像
         <div
           className="absolute inset-0 bg-cover bg-center opacity-80 pointer-events-none filter blur-[0.5px]"
           style={{
@@ -46,12 +44,14 @@ export function Hero({
           }}
         />
       )}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/35 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" />
 
       {/* Headerの開始位置と完全に一直線に揃うコンテナー */}
 
-      
+
       <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col justify-center px-6 md:px-8">
-        
+
         {/* サブタイトル */}
         <p className="mb-3 text-[11px] font-semibold tracking-[0.25em] text-sky-400 uppercase">
           CINEMA DISCOVERY

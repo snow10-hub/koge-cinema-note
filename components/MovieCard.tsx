@@ -18,7 +18,7 @@ export function MovieCard({ movie }: MovieCardProps) {
   return (
     <Link href={`/movies/${movie.id}`} className="group block h-full select-none">
       {/* 🌟 修正ポイント: rounded-2xl ➔ rounded-xl にして大ぶりな角丸をシャープに */}
-      <article className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-900 bg-slate-900/20 shadow-xl shadow-black/50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/30 hover:bg-slate-900/40">
+      <article className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-700/80 bg-slate-900/65 shadow-xl shadow-black/40 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-500/80 hover:bg-slate-900/75">
         
         {/* ポスター画像エリア */}
         <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-950/60">
