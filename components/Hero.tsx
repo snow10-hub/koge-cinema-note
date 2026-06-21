@@ -16,19 +16,17 @@ export function Hero({
   isLoading,
   backdropUrl,
 }: HeroProps) {
-  // 🌟 検索窓に入力している文字とは別に、「実際に検索確定した文字」をローカルで記憶する
+
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
 
-  // 🌟 判定：「背景画像があり」かつ「確定した検索文字が空ではない」時だけ映画背景にする
-  // これにより、文字をチャカチャカ入力している最中は背景が変わりません！
   const showMovieBackdrop = backdropUrl && activeSearchTerm !== "";
 
   return (
     <section
       id="search"
       className="relative h-[56svh] min-h-[27rem] w-full overflow-hidden bg-slate-950 antialiased select-none md:h-[52vh] md:min-h-0"
-      >
-      {/* 🌟 背景エリア */}
+    >
+
       {showMovieBackdrop ? (
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-50 scale-100 pointer-events-none filter blur-[0.5px]"
@@ -44,8 +42,8 @@ export function Hero({
           }}
         />
       )}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/35 to-transparent" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/55 via-slate-950/18 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" />
 
       {/* Headerの開始位置と完全に一直線に揃うコンテナー */}
 
@@ -59,13 +57,13 @@ export function Hero({
 
         {/* 🌟 メインコピー：文字の後ろに「ぼわっ」と広がる強めの発光シャドウをプラス */}
         <h2 className="max-w-xl text-2xl font-medium leading-[1.2] tracking-tight text-white drop-shadow-[0_0_25px_rgba(14,165,233,0.4)] sm:text-3xl md:text-4xl lg:text-5xl">
-          Track, discover, and
+          Beyond the screen,
           <br />
-          remember your cinema.
+          stay with the story.
         </h2>
 
         <p className="mt-4 max-w-md text-xs md:text-sm tracking-wide text-slate-200 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
-          お気に入りの映画をストックし、次に観る一本をシネマティックに管理する。
+          記憶のスクリーンに、色褪せない物語を。
         </p>
 
         {/* 検索フォーム */}
@@ -85,7 +83,7 @@ export function Hero({
             value={searchTerm}
             onChange={(event) => {
               onSearchTermChange(event.target.value);
-              // 💡 もし検索窓が完全に空っぽにされたら、背景をデフォルトに戻す
+
               if (event.target.value === "") {
                 setActiveSearchTerm("");
               }

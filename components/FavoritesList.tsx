@@ -90,7 +90,7 @@ export function FavoritesList() {
     }
 
     return (
-        <section className="mx-auto max-w-5xl px-6 py-12 antialiased text-slate-200">
+        <section className="mx-auto max-w-6xl px-6 py-12 antialiased text-slate-200 md:px-8">
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-white/5 pb-5">
                 <div>

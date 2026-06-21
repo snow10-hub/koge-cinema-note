@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Footer } from "../components/Footer";
+import { GenreList } from "../components/GenreList";
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
 import { MovieList } from "../components/MovieList";
@@ -15,6 +16,11 @@ type Movie = {
   backdrop: string | null;
 };
 
+type Genre = {
+  id: number;
+  name: string;
+};
+
 type TmdbMovie = {
   id: number;
   title: string;
@@ -23,6 +29,8 @@ type TmdbMovie = {
   release_date: string;
   vote_average: number;
 };
+
+type ViewMode = "trending" | "search" | "genre";
 
 function formatMovies(tmdbMovies: TmdbMovie[]): Movie[] {
   return tmdbMovies.map((movie) => ({
@@ -42,19 +50,37 @@ function formatMovies(tmdbMovies: TmdbMovie[]): Movie[] {
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
   const [heroBackdropUrl, setHeroBackdropUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("trending");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
+  async function fetchGenres() {
+    try {
+      const response = await fetch("/api/genres");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch genres");
+      }
+
+      const data: { genres: Genre[] } = await response.json();
+      setGenres(data.genres);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   async function fetchTrendingMovies() {
     try {
       setIsLoading(true);
       setErrorMessage("");
-      setHasSearched(false);
+      setViewMode("trending");
+      setSelectedGenre(null);
       setCurrentPage(1);
       setHasMore(false);
       setHeroBackdropUrl(null);
@@ -79,6 +105,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchTrendingMovies();
+    fetchGenres();
   }, []);
 
   async function handleSearch(pageToFetch = 1) {
@@ -90,9 +117,10 @@ export default function Home() {
     try {
       setIsLoading(true);
       setErrorMessage("");
-      setHasSearched(true);
+      setViewMode("search");
 
       if (pageToFetch === 1) {
+        setSelectedGenre(null);
         setHeroBackdropUrl(null);
       }
 
@@ -132,14 +160,72 @@ export default function Home() {
     }
   }
 
+  async function handleGenreSearch(genre: Genre, pageToFetch = 1) {
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
+      setViewMode("genre");
+
+      if (pageToFetch === 1) {
+        setSelectedGenre(genre);
+        setSearchTerm("");
+        setHeroBackdropUrl(null);
+      }
+
+      const response = await fetch(
+        `/api/discover?genreId=${genre.id}&page=${pageToFetch}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to discover movies");
+      }
+
+      const data: { results: TmdbMovie[]; total_pages?: number } =
+        await response.json();
+
+      const newMovies = formatMovies(data.results);
+
+      if (pageToFetch === 1) {
+        setMovies(newMovies);
+      } else {
+        setMovies((prevMovies) => [...prevMovies, ...newMovies]);
+      }
+
+      setCurrentPage(pageToFetch);
+
+      const totalPages = data.total_pages ?? 1;
+      setHasMore(pageToFetch < totalPages && data.results.length > 0);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage(
+        "ジャンル別映画の取得に失敗しました。時間をおいて再度お試しください。"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   function handleLoadMore() {
     if (isLoading) return;
 
     const nextPage = currentPage + 1;
-    handleSearch(nextPage);
+
+    if (viewMode === "search") {
+      handleSearch(nextPage);
+      return;
+    }
+
+    if (viewMode === "genre" && selectedGenre) {
+      handleGenreSearch(selectedGenre, nextPage);
+    }
   }
 
-  const movieListTitle = hasSearched ? "SEARCH RESULTS" : "TRENDING THIS WEEK";
+  const movieListTitle =
+    viewMode === "search"
+      ? "SEARCH RESULTS"
+      : viewMode === "genre" && selectedGenre
+        ? `${selectedGenre.name} MOVIES`
+        : "TRENDING THIS WEEK";
 
   return (
     <main className="relative min-h-screen bg-slate-950 text-white">
@@ -166,9 +252,17 @@ export default function Home() {
             </div>
           )}
 
+          <GenreList
+            genres={genres}
+            selectedGenreId={selectedGenre?.id ?? null}
+            isLoading={isLoading}
+            onSelectGenre={(genre) => handleGenreSearch(genre, 1)}
+            onClearGenre={fetchTrendingMovies}
+          />
+
           <MovieList movies={movies} title={movieListTitle} />
 
-          {hasSearched && hasMore && (
+          {viewMode !== "trending" && hasMore && (
             <div className="mt-12 flex justify-center px-6 md:px-8">
               <button
                 type="button"

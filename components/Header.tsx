@@ -30,7 +30,7 @@ export function Header() {
           </span>
 
           <span className="mt-1 block max-w-[13rem] text-[10px] font-medium tracking-wide text-slate-400 sm:max-w-none md:text-xs">
-            映画を探して、あなたの物語を残す場所。
+            物語をめくる、私だけの映画館。
           </span>
         </Link>
 
@@ -68,8 +68,8 @@ export function Header() {
 
       <div
         className={`grid overflow-hidden bg-slate-950/95 shadow-2xl shadow-black/50 transition-all duration-300 ease-out md:hidden ${isMenuOpen
-            ? "grid-rows-[1fr] border-t border-white/10 opacity-100 translate-y-0"
-            : "grid-rows-[0fr] border-t border-transparent opacity-0 -translate-y-2 pointer-events-none"
+          ? "grid-rows-[1fr] border-t border-white/10 opacity-100 translate-y-0"
+          : "grid-rows-[0fr] border-t border-transparent opacity-0 -translate-y-2 pointer-events-none"
           }`}
       >
         <div className="min-h-0 overflow-hidden">

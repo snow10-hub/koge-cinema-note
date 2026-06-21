@@ -94,11 +94,7 @@ export function MovieList({ movies, title }: MovieListProps) {
                           TMDB ★ {featuredMovie.rating.toFixed(1)}
                         </span>
                       </div>
-
-                      <p className="mt-4 hidden max-w-md text-xs font-normal leading-relaxed text-slate-300/90 sm:block">
-                        今週、世界中で最も多くの映画ファンにチェックされているトップラインナップ作品。
-                      </p>
-
+                      
                       <span className="mt-5 inline-block w-fit rounded-full bg-slate-100 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-slate-950 shadow-md transition-all duration-300 group-hover:scale-105 group-hover:bg-sky-400">
                         VIEW DETAILS
                       </span>

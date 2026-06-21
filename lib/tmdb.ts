@@ -10,8 +10,26 @@ export type TmdbMovie = {
   backdrop_path: string | null;
 };
 
+const genreNameMap: Record<string, string> = {
+  History: "歴史",
+  Western: "西部劇",
+  Mystery: "ミステリー",
+  "Science Fiction": "SF",
+  "TV Movie": "TV映画",
+
+  履歴: "歴史",
+  西洋: "西部劇",
+  謎: "ミステリー",
+  サイエンスフィクション: "SF",
+  テレビ映画: "TV映画",
+};
+
+function formatGenreName(name: string): string {
+  return genreNameMap[name] ?? name;
+}
+
 export async function searchMovies(
-  query: string, 
+  query: string,
   page: string = "1"
 ): Promise<{ results: TmdbMovie[]; total_pages: number }> {
   const apiKey = process.env.TMDB_API_KEY;
@@ -105,7 +123,15 @@ export async function getMovieDetails(id: string): Promise<TmdbMovieDetail> {
     throw new Error("Failed to fetch movie details");
   }
 
-  return response.json();
+  const data = await response.json();
+
+  return {
+    ...data,
+    genres: (data.genres ?? []).map((genre: { id: number; name: string }) => ({
+      ...genre,
+      name: formatGenreName(genre.name),
+    })),
+  };
 }
 
 export async function getMovieRecommendations(
@@ -134,4 +160,68 @@ export async function getMovieRecommendations(
   const data = await response.json();
 
   return data.results ?? [];
+}
+
+export type TmdbGenre = {
+  id: number;
+  name: string;
+};
+
+export async function getMovieGenres(): Promise<TmdbGenre[]> {
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("TMDB_API_KEY is not set");
+  }
+
+  const params = new URLSearchParams({
+    api_key: apiKey,
+    language: "ja-JP",
+  });
+
+  const response = await fetch(`${TMDB_BASE_URL}/genre/movie/list?${params}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch movie genres");
+  }
+
+  const data = await response.json();
+
+  return (data.genres ?? []).map((genre: TmdbGenre) => ({
+    ...genre,
+    name: formatGenreName(genre.name),
+  }));
+}
+
+export async function discoverMoviesByGenre(
+  genreId: string,
+  page: string = "1"
+): Promise<{ results: TmdbMovie[]; total_pages: number }> {
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("TMDB_API_KEY is not set");
+  }
+
+  const params = new URLSearchParams({
+    api_key: apiKey,
+    language: "ja-JP",
+    include_adult: "false",
+    sort_by: "popularity.desc",
+    with_genres: genreId,
+    page,
+  });
+
+  const response = await fetch(`${TMDB_BASE_URL}/discover/movie?${params}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to discover movies by genre");
+  }
+
+  const data = await response.json();
+
+  return {
+    results: data.results ?? [],
+    total_pages: data.total_pages ?? 1,
+  };
 }
