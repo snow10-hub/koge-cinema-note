@@ -59,8 +59,8 @@ export function MovieList({ movies, title }: MovieListProps) {
               href={`/movies/${featuredMovie.id}`}
               className="group block select-none"
             >
-              <article className="relative mb-10 overflow-hidden rounded-xl border border-slate-700/80 bg-slate-900/65 shadow-2xl shadow-black/70 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-500/80 hover:bg-slate-900/75 hover:shadow-[0_0_28px_rgba(14,165,233,0.14)]">
-                <div className="relative min-h-[260px] overflow-hidden md:min-h-[320px]">
+              <article className="relative mb-8 overflow-hidden rounded-xl border border-slate-700/80 bg-slate-900/65 shadow-2xl shadow-black/70 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-500/80 hover:bg-slate-900/75 hover:shadow-[0_0_28px_rgba(14,165,233,0.14)] md:mb-10">
+                <div className="relative min-h-[240px] overflow-hidden sm:min-h-[260px] md:min-h-[320px]">
                   {featuredImage ? (
                     <Image
                       src={featuredImage}
@@ -77,13 +77,13 @@ export function MovieList({ movies, title }: MovieListProps) {
                   <div className="absolute inset-0 bg-gradient-to-r from-slate-950/55 via-slate-950/20 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent" />
 
-                  <div className="relative z-10 flex min-h-[260px] flex-col justify-center px-6 py-6 md:min-h-[320px] md:px-12 md:py-8">
+                  <div className="relative z-10 flex min-h-[240px] flex-col justify-center px-6 py-6 sm:min-h-[260px] md:min-h-[320px] md:px-12 md:py-8">
                     <div>
                       <p className="mb-3 w-fit rounded border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-sky-300">
                         WEEKLY NO.1
                       </p>
 
-                      <h4 className="max-w-xl text-xl font-medium leading-tight tracking-tight text-white md:text-3xl">
+                      <h4 className="max-w-xl text-lg font-medium leading-tight tracking-tight text-white sm:text-xl md:text-3xl">
                         {featuredMovie.title}
                       </h4>
 
@@ -110,7 +110,7 @@ export function MovieList({ movies, title }: MovieListProps) {
           )}
 
           {gridMovies.length > 0 && (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-7 min-[390px]:grid-cols-3 min-[390px]:gap-x-2 sm:gap-x-4 sm:gap-y-8 md:grid-cols-4 lg:grid-cols-6">
               {gridMovies.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} />
               ))}

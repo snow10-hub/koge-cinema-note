@@ -26,8 +26,8 @@ export function Hero({
   return (
     <section
       id="search"
-      className="relative h-[48vh] w-full overflow-hidden bg-slate-950 md:h-[52vh] antialiased select-none"
-    >
+      className="relative h-[56svh] min-h-[27rem] w-full overflow-hidden bg-slate-950 antialiased select-none md:h-[52vh] md:min-h-0"
+      >
       {/* 🌟 背景エリア */}
       {showMovieBackdrop ? (
         <div
@@ -58,7 +58,7 @@ export function Hero({
         </p>
 
         {/* 🌟 メインコピー：文字の後ろに「ぼわっ」と広がる強めの発光シャドウをプラス */}
-        <h2 className="max-w-xl text-3xl font-medium leading-[1.2] tracking-tight text-white drop-shadow-[0_0_25px_rgba(14,165,233,0.4)] md:text-4xl lg:text-5xl">
+        <h2 className="max-w-xl text-2xl font-medium leading-[1.2] tracking-tight text-white drop-shadow-[0_0_25px_rgba(14,165,233,0.4)] sm:text-3xl md:text-4xl lg:text-5xl">
           Track, discover, and
           <br />
           remember your cinema.
@@ -73,12 +73,12 @@ export function Hero({
           onSubmit={(event) => {
             event.preventDefault();
             if (!isLoading) {
-              // 🌟 検索ボタンが押された瞬間に、今の入力文字を「確定文字」として保存！
+              // 検索ボタンが押された瞬間に、今の入力文字を「確定文字」として保存
               setActiveSearchTerm(searchTerm);
               onSearch();
             }
           }}
-          className="mt-8 flex max-w-sm items-center rounded-xl border border-sky-400/50 bg-slate-950/80 p-1 shadow-2xl shadow-sky-950/40 backdrop-blur-md transition-all duration-300 focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/20"
+          className="mt-8 flex w-full max-w-sm items-center rounded-xl border border-sky-400/50 bg-slate-950/80 p-1 shadow-2xl shadow-sky-950/40 backdrop-blur-md transition-all duration-300 focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/20"
         >
           <input
             type="text"

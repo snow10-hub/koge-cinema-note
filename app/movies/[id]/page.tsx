@@ -2,9 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
-import { getMovieDetails } from "../../../lib/tmdb";
+import { getMovieDetails, getMovieRecommendations } from "../../../lib/tmdb";
 import { ReviewSection } from "../../../components/ReviewSection";
 import { FavoriteButton } from "../../../components/FavoriteButton";
+import { ExpandableOverview } from "../../../components/ExpandableOverview";
+import { MovieCard } from "../../../components/MovieCard";
 
 type MovieDetailPageProps = {
   params: Promise<{
@@ -31,6 +33,20 @@ export default async function MovieDetailPage({
     : "----";
 
   const rating = Math.round(movie.vote_average * 10) / 10;
+  const recommendations = await getMovieRecommendations(id);
+
+  const recommendedMovies = recommendations.slice(0, 6).map((movie) => ({
+    id: movie.id,
+    title: movie.title,
+    year: movie.release_date ? movie.release_date.slice(0, 4) : "----",
+    rating: Math.round(movie.vote_average * 10) / 10,
+    poster: movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      : null,
+    backdrop: movie.backdrop_path
+      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+      : null,
+  }));
 
   return (
     <main className="relative min-h-screen bg-slate-950 text-slate-100 selection:bg-sky-500/30">
@@ -49,7 +65,7 @@ export default async function MovieDetailPage({
       <div className="relative z-10 flex min-h-screen flex-col">
         <Header />
 
-        <div className="mx-auto flex-1 w-full max-w-5xl px-6 pb-24 pt-6">
+        <div className="mx-auto w-full flex-1 max-w-6xl px-6 pb-20 pt-6 md:px-8 md:pb-24">
           <Link
             href="/"
             className="inline-flex select-none items-center text-xs font-bold uppercase tracking-wider text-slate-400 transition-colors hover:text-sky-400"
@@ -57,35 +73,70 @@ export default async function MovieDetailPage({
             ← Back to discover
           </Link>
 
-          <section className="mt-8 grid gap-8 md:grid-cols-[240px_1fr] md:items-start">
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-slate-700/80 bg-slate-900/65 shadow-2xl shadow-black/70">
-              {posterUrl ? (
-                <Image
-                  src={posterUrl}
-                  alt={`${movie.title} ポスター`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 240px"
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-bold uppercase tracking-wider text-slate-500">
-                  No Poster
-                </div>
-              )}
-            </div>
+          <section className="mt-8">
+            <div className="grid grid-cols-[128px_1fr] gap-5 sm:grid-cols-[160px_1fr] sm:gap-6 md:grid-cols-[220px_1fr] md:gap-8 lg:grid-cols-[240px_1fr]">
+              <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-slate-700/80 bg-slate-900/65 shadow-2xl shadow-black/70">
+                {posterUrl ? (
+                  <Image
+                    src={posterUrl}
+                    alt={`${movie.title} ポスター`}
+                    fill
+                    sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, (max-width: 1024px) 220px, 240px"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-xs">
+                    No Poster
+                  </div>
+                )}
+              </div>
 
-            <div className="rounded-xl border border-slate-600/80 bg-slate-900/65 p-6 shadow-2xl shadow-black/70 backdrop-blur-md md:p-8">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-sky-400">
-                MOVIE DETAIL
-              </p>
+              <div className="min-w-0 self-center md:self-start md:pt-2">
+                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-sky-400 md:text-[10px]">
+                  MOVIE DETAIL
+                </p>
 
-              <div className="mt-3 flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between">
-                <h1 className="text-2xl font-medium leading-tight tracking-tight text-white md:text-3xl lg:text-4xl">
+                <h1 className="mt-2 text-lg font-medium leading-tight tracking-tight text-white sm:text-2xl md:text-3xl lg:text-4xl">
                   {movie.title}
                 </h1>
 
-                <div className="shrink-0">
+                {movie.tagline && (
+                  <p className="mt-3 text-xs font-light leading-relaxed tracking-wide text-slate-300 sm:text-sm md:mt-4 md:text-slate-200/90">
+                    {movie.tagline}
+                  </p>
+                )}
+
+                <div className="mt-4 flex flex-wrap gap-1.5 text-[10px] font-bold tracking-wider text-slate-100 sm:gap-2 md:mt-5 md:text-[11px]">
+                  <span className="rounded-full border border-slate-700/80 bg-slate-800/70 px-2.5 py-1 md:px-3">
+                    {releaseYear}
+                  </span>
+
+                  {movie.runtime && (
+                    <span className="rounded-full border border-slate-700/80 bg-slate-800/70 px-2.5 py-1 md:px-3">
+                      {movie.runtime} MIN
+                    </span>
+                  )}
+
+                  <span className="rounded-full border border-sky-500/40 bg-sky-500/15 px-2.5 py-1 font-black text-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.12)] md:px-3">
+                    TMDB ★ {rating.toFixed(1)}
+                  </span>
+                </div>
+
+                {movie.genres.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {movie.genres.map((genre) => (
+                      <span
+                        key={genre.id}
+                        className="rounded-md border border-slate-700/80 bg-slate-800/70 px-2.5 py-1 text-[9px] font-bold tracking-wide text-slate-200 md:px-3 md:text-[10px]"
+                      >
+                        {genre.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-4 md:mt-6">
                   <FavoriteButton
                     movie={{
                       id: movie.id,
@@ -97,56 +148,40 @@ export default async function MovieDetailPage({
                   />
                 </div>
               </div>
+            </div>
 
-              {movie.tagline && (
-                <p className="mt-6 text-sm font-light leading-relaxed tracking-wide text-slate-200/90 antialiased">
-                  <span className="relative inline-block pl-3 before:absolute before:left-0 before:top-0 before:h-full before:w-[1px] before:bg-gradient-to-b before:from-sky-400/60 before:to-transparent">
-                    {movie.tagline}
-                  </span>
-                </p>
-              )}
+            <div className="mt-8 rounded-xl border border-slate-600/80 bg-slate-900/65 px-6 py-6 shadow-2xl shadow-black/70 backdrop-blur-md md:mt-10 md:p-8">
+              <h2 className="text-xs font-black uppercase tracking-widest text-slate-200">
+                Overview
+              </h2>
 
-              <div className="mt-6 flex flex-wrap gap-2 text-[11px] font-bold tracking-wider text-slate-100">
-                <span className="rounded-full border border-slate-700/80 bg-slate-800/70 px-3 py-1">
-                  {releaseYear}
-                </span>
-
-                {movie.runtime && (
-                  <span className="rounded-full border border-slate-700/80 bg-slate-800/70 px-3 py-1">
-                    {movie.runtime} MIN
-                  </span>
-                )}
-
-                <span className="rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 font-black text-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.12)]">
-                  TMDB ★ {rating.toFixed(1)}
-                </span>
-              </div>
-
-              {movie.genres.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {movie.genres.map((genre) => (
-                    <span
-                      key={genre.id}
-                      className="rounded border border-slate-700/80 bg-slate-800/70 px-2 py-0.5 text-[10px] font-bold tracking-wide text-slate-200"
-                    >
-                      {genre.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-8">
-                <h2 className="text-xs font-black uppercase tracking-widest text-slate-200">
-                  Overview
-                </h2>
-
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-200">
-                  {movie.overview || "あらすじ情報はありません。"}
-                </p>
-              </div>
+              <ExpandableOverview overview={movie.overview || ""} />
             </div>
           </section>
 
+          {recommendedMovies.length > 0 && (
+            <section className="mt-12">
+              <div className="mb-6 border-b border-white/5 pb-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-sky-400">
+                  RELATED
+                </p>
+
+                <h2 className="mt-2 text-lg font-medium uppercase tracking-widest text-white md:text-xl">
+                  Recommended Movies
+                </h2>
+
+                <p className="mt-2.5 max-w-xl text-xs font-light leading-relaxed tracking-wide text-slate-300">
+                  この作品に関連する映画をチェック。
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-3 gap-y-7 min-[390px]:grid-cols-3 min-[390px]:gap-x-2 sm:gap-x-4 sm:gap-y-8 md:grid-cols-4 lg:grid-cols-6">
+                {recommendedMovies.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            </section>
+          )}
           <ReviewSection movieId={movie.id} />
         </div>
 

@@ -42,6 +42,7 @@ function formatMovies(tmdbMovies: TmdbMovie[]): Movie[] {
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [heroBackdropUrl, setHeroBackdropUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
@@ -56,6 +57,7 @@ export default function Home() {
       setHasSearched(false);
       setCurrentPage(1);
       setHasMore(false);
+      setHeroBackdropUrl(null);
 
       const response = await fetch("/api/trending");
 
@@ -90,6 +92,10 @@ export default function Home() {
       setErrorMessage("");
       setHasSearched(true);
 
+      if (pageToFetch === 1) {
+        setHeroBackdropUrl(null);
+      }
+
       const response = await fetch(
         `/api/search?query=${encodeURIComponent(searchTerm)}&page=${pageToFetch}`
       );
@@ -105,6 +111,9 @@ export default function Home() {
 
       if (pageToFetch === 1) {
         setMovies(newMovies);
+        setHeroBackdropUrl(
+          newMovies.find((movie) => movie.backdrop)?.backdrop ?? null
+        );
       } else {
         setMovies((prevMovies) => [...prevMovies, ...newMovies]);
       }
@@ -130,7 +139,6 @@ export default function Home() {
     handleSearch(nextPage);
   }
 
-  const heroBackdrop = movies.find((movie) => movie.backdrop)?.backdrop ?? null;
   const movieListTitle = hasSearched ? "SEARCH RESULTS" : "TRENDING THIS WEEK";
 
   return (
@@ -146,12 +154,12 @@ export default function Home() {
           onSearchTermChange={setSearchTerm}
           onSearch={() => handleSearch(1)}
           isLoading={isLoading}
-          backdropUrl={heroBackdrop}
+          backdropUrl={heroBackdropUrl}
         />
 
         <div className="flex-1 pb-24">
           {errorMessage && (
-            <div className="mx-auto mt-8 max-w-6xl px-6">
+            <div className="mx-auto mt-8 max-w-6xl px-6 md:px-8">
               <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-200">
                 {errorMessage}
               </p>
@@ -161,7 +169,7 @@ export default function Home() {
           <MovieList movies={movies} title={movieListTitle} />
 
           {hasSearched && hasMore && (
-            <div className="mt-12 flex justify-center px-6">
+            <div className="mt-12 flex justify-center px-6 md:px-8">
               <button
                 type="button"
                 onClick={handleLoadMore}

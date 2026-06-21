@@ -43,7 +43,7 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
 
   useEffect(() => {
     setIsMounted(true);
-    
+
     const syncFavoriteState = () => {
       const favorites = getStoredFavorites();
       setIsFavorite(favorites.some((favorite) => favorite.id === movie.id));
@@ -88,21 +88,17 @@ export function FavoriteButton({ movie }: FavoriteButtonProps) {
       type="button"
       onClick={handleToggleFavorite}
       aria-pressed={isFavorite}
-      /* 🌟 改善ポイント:
-         - h-9.5 (38px) & w-44 に引き締めて、細身でシャープなシルエットに。
-         - 入れる前：いつもの青（border-sky-500/50）で、枠も文字もハッキリ鮮やかに。
-         - 入れた後：大人可愛いローズピンクにパッと切り替わります。
-      */
-      className={`inline-flex h-9.5 w-44 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 transition-all duration-300 antialiased font-bold text-xs tracking-wider ${
-        isFavorite
-          ? "border-rose-500/60 bg-rose-500/10 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.12)] hover:bg-rose-500/20"
-          : "border-sky-500/50 bg-slate-900/50 text-sky-400 hover:border-sky-400 hover:bg-sky-500/10 hover:text-sky-300"
-      } ${isAnimating ? "scale-104" : "scale-100 active:scale-98"}`}
+
+      className={`inline-flex h-9.5 w-44 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 transition-all duration-300 antialiased font-bold text-xs tracking-wider ${isFavorite
+        ? "border-sky-400/50 bg-sky-500/10 text-sky-300 hover:border-sky-400 hover:bg-sky-500/20"
+        : "border-sky-500/50 bg-slate-900/50 text-sky-400 hover:border-sky-400 hover:bg-sky-500/10 hover:text-sky-300"
+        } ${isAnimating ? "scale-104" : "scale-100 active:scale-98"}`}
     >
-      <Heart 
-        className={`h-3.5 w-3.5 transition-all duration-300 ${
-          isFavorite ? "fill-rose-400/30 text-rose-400 stroke-[2.2]" : "text-sky-400 stroke-[2]"
-        }`} 
+      <Heart
+        className={`h-3.5 w-3.5 transition-all duration-300 ${isFavorite
+            ? "fill-sky-300 text-sky-300 stroke-[2.2]"
+            : "text-sky-400 stroke-[2]"
+          }`}
       />
       <span>{isFavorite ? "お気に入り登録中" : "お気に入りに追加"}</span>
     </button>

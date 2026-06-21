@@ -10,7 +10,6 @@ export type TmdbMovie = {
   backdrop_path: string | null;
 };
 
-// 🌟 修正：引数に page を追加し、戻り値を results と total_pages のオブジェクトにする
 export async function searchMovies(
   query: string, 
   page: string = "1"
@@ -30,7 +29,7 @@ export async function searchMovies(
     query,
     language: "ja-JP",
     include_adult: "false",
-    page, // 🌟 追加：TMDBにページ番号を渡す！
+    page,
   });
 
   const response = await fetch(`${TMDB_BASE_URL}/search/movie?${params}`);
@@ -107,4 +106,32 @@ export async function getMovieDetails(id: string): Promise<TmdbMovieDetail> {
   }
 
   return response.json();
+}
+
+export async function getMovieRecommendations(
+  id: string
+): Promise<TmdbMovie[]> {
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("TMDB_API_KEY is not set");
+  }
+
+  const params = new URLSearchParams({
+    api_key: apiKey,
+    language: "ja-JP",
+    page: "1",
+  });
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/movie/${id}/recommendations?${params}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch movie recommendations");
+  }
+
+  const data = await response.json();
+
+  return data.results ?? [];
 }
