@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { MouseEvent } from "react";
 import Link from "next/link";
 import { Bebas_Neue } from "next/font/google";
 import { Moon } from "lucide-react";
@@ -18,6 +19,24 @@ const mobileNavLinkClass =
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  function handleSearchClick(event: MouseEvent<HTMLAnchorElement>) {
+    setIsMenuOpen(false);
+
+    if (window.location.pathname !== "/") {
+      return;
+    }
+
+    event.preventDefault();
+
+    window.setTimeout(() => {
+      document.getElementById("search")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      window.history.replaceState(null, "", "#search");
+    }, 120);
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/20 bg-slate-950/80 backdrop-blur-xl antialiased">
@@ -41,7 +60,7 @@ export function Header() {
             HOME
           </Link>
 
-          <Link className={navLinkClass} href="/#search">
+          <Link className={navLinkClass} href="/#search" onClick={handleSearchClick}>
             SEARCH
           </Link>
 
@@ -60,17 +79,19 @@ export function Header() {
           <Moon
             size={19}
             strokeWidth={2.1}
-            className={`transition duration-300 ${isMenuOpen ? "rotate-[-90deg] fill-sky-300/20" : ""
-              }`}
+            className={`transition duration-300 ${
+              isMenuOpen ? "rotate-[-90deg] fill-sky-300/20" : ""
+            }`}
           />
         </button>
       </div>
 
       <div
-        className={`grid overflow-hidden bg-slate-950/95 shadow-2xl shadow-black/50 transition-all duration-300 ease-out md:hidden ${isMenuOpen
-          ? "grid-rows-[1fr] border-t border-white/10 opacity-100 translate-y-0"
-          : "grid-rows-[0fr] border-t border-transparent opacity-0 -translate-y-2 pointer-events-none"
-          }`}
+        className={`grid overflow-hidden bg-slate-950/95 shadow-2xl shadow-black/50 transition-all duration-300 ease-out md:hidden ${
+          isMenuOpen
+            ? "grid-rows-[1fr] border-t border-white/10 opacity-100 translate-y-0"
+            : "grid-rows-[0fr] border-t border-transparent opacity-0 -translate-y-2 pointer-events-none"
+        }`}
       >
         <div className="min-h-0 overflow-hidden">
           <nav
@@ -87,7 +108,7 @@ export function Header() {
             <Link
               className={mobileNavLinkClass}
               href="/#search"
-              onClick={() => setIsMenuOpen(false)}
+              onClick={handleSearchClick}
             >
               SEARCH
             </Link>
