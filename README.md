@@ -8,7 +8,7 @@ TMDB APIを利用し、映画検索、今週の話題作表示、映画詳細表
 
 ## Demo
 
-公開URL： デプロイ後に追記予定
+公開URL： https://koge-cinema-note.vercel.app/
 GitHub： https://github.com/snow10-hub/koge-cinema-note
 
 ## Screenshot
