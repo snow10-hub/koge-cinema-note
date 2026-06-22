@@ -49,7 +49,7 @@ export function MovieList({ movies, title }: MovieListProps) {
         <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 px-6 py-16 text-center backdrop-blur-md">
           <p className="text-sm font-bold text-slate-300">No movies found.</p>
           <p className="mt-1 text-xs text-slate-500">
-            別のキーワードで検索してみてください。
+            検索結果が見つかりませんでした。正式タイトル、英題、または区切り記号を入れて検索してみてください。
           </p>
         </div>
       ) : (
