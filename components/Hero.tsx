@@ -1,3 +1,5 @@
+"use client";
+
 import { Search } from "lucide-react";
 import { useState } from "react";
 
@@ -19,7 +21,7 @@ export function Hero({
 
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
 
-  const showMovieBackdrop = backdropUrl && activeSearchTerm !== "";
+  const showMovieBackdrop = Boolean(backdropUrl && activeSearchTerm !== "");
 
   return (
     <section
@@ -27,31 +29,21 @@ export function Hero({
       className="relative h-[56svh] min-h-[27rem] w-full overflow-hidden bg-slate-950 antialiased select-none md:h-[52vh] md:min-h-0"
     >
 
-      {showMovieBackdrop ? (
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-50 scale-100 pointer-events-none filter blur-[0.5px]"
-          style={{
-            backgroundImage: `url('${backdropUrl}')`,
-          }}
-        />
-      ) : (
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-80 pointer-events-none filter blur-[0.5px]"
-          style={{
-            backgroundImage: `url('/images/hero-default.webp')`,
-          }}
-        />
-      )}
+      <div
+        className={`pointer-events-none absolute inset-0 bg-cover bg-center blur-[0.5px] transition-all duration-1000 ${showMovieBackdrop ? "opacity-50" : "opacity-80"
+          }`}
+        style={{
+          backgroundImage: `url('${showMovieBackdrop ? backdropUrl : "/images/hero-default.webp"}')`,
+        }}
+      />
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-900/40 via-slate-900/5 to-transparent" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent" />
 
       <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col justify-center px-6 md:px-8">
         <div className="relative max-w-md">
-          {/* 網掛け用の背景 */}
           <div className="pointer-events-none absolute -inset-x-4 -inset-y-5 rounded-xl bg-slate-950/35" />
 
-          {/* 中身 */}
           <div className="relative z-10">
             <p className="mb-3 text-[11px] font-semibold tracking-[0.25em] text-sky-400 uppercase">
               CINEMA DISCOVERY
