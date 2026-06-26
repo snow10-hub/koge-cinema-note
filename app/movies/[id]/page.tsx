@@ -18,7 +18,11 @@ export default async function MovieDetailPage({
   params,
 }: MovieDetailPageProps) {
   const { id } = await params;
-  const movie = await getMovieDetails(id);
+
+  const [movie, recommendations] = await Promise.all([
+    getMovieDetails(id),
+    getMovieRecommendations(id),
+  ]);
 
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -33,18 +37,19 @@ export default async function MovieDetailPage({
     : "----";
 
   const rating = Math.round(movie.vote_average * 10) / 10;
-  const recommendations = await getMovieRecommendations(id);
 
-  const recommendedMovies = recommendations.slice(0, 6).map((movie) => ({
-    id: movie.id,
-    title: movie.title,
-    year: movie.release_date ? movie.release_date.slice(0, 4) : "----",
-    rating: Math.round(movie.vote_average * 10) / 10,
-    poster: movie.poster_path
-      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+  const recommendedMovies = recommendations.slice(0, 6).map((recommendedMovie) => ({
+    id: recommendedMovie.id,
+    title: recommendedMovie.title,
+    year: recommendedMovie.release_date
+      ? recommendedMovie.release_date.slice(0, 4)
+      : "----",
+    rating: Math.round(recommendedMovie.vote_average * 10) / 10,
+    poster: recommendedMovie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${recommendedMovie.poster_path}`
       : null,
-    backdrop: movie.backdrop_path
-      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+    backdrop: recommendedMovie.backdrop_path
+      ? `https://image.tmdb.org/t/p/original${recommendedMovie.backdrop_path}`
       : null,
   }));
 
@@ -59,8 +64,8 @@ export default async function MovieDetailPage({
         />
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/60" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/60" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50" />
 
       <div className="relative z-10 flex min-h-screen flex-col">
         <Header />
@@ -182,7 +187,7 @@ export default async function MovieDetailPage({
               </div>
             </section>
           )}
-          <ReviewSection movieId={movie.id} />
+          <ReviewSection key={movie.id} movieId={movie.id} />
         </div>
 
         <Footer />

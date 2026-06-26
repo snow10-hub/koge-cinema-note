@@ -53,27 +53,12 @@ export default function Home() {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
   const [heroBackdropUrl, setHeroBackdropUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("trending");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-
-  async function fetchGenres() {
-    try {
-      const response = await fetch("/api/genres");
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch genres");
-      }
-
-      const data: { genres: Genre[] } = await response.json();
-      setGenres(data.genres);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   async function fetchTrendingMovies() {
     try {
@@ -104,8 +89,48 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchTrendingMovies();
-    fetchGenres();
+    async function loadInitialData() {
+      try {
+        const [trendingResponse, genresResponse] = await Promise.all([
+          fetch("/api/trending"),
+          fetch("/api/genres"),
+        ]);
+
+        if (!trendingResponse.ok) {
+          throw new Error("Failed to fetch trending movies");
+        }
+
+        if (!genresResponse.ok) {
+          throw new Error("Failed to fetch genres");
+        }
+
+        const trendingData: { results: TmdbMovie[] } =
+          await trendingResponse.json();
+
+        const genresData: { genres: Genre[] } = await genresResponse.json();
+
+        const formattedMovies = formatMovies(trendingData.results);
+
+        setMovies(formattedMovies);
+        setGenres(genresData.genres);
+        setViewMode("trending");
+        setSelectedGenre(null);
+        setCurrentPage(1);
+        setHasMore(false);
+        setHeroBackdropUrl(null);
+        setErrorMessage("");
+
+      } catch (error) {
+        console.error(error);
+        setErrorMessage(
+          "映画情報の取得に失敗しました。時間をおいて再度お試しください。"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    void loadInitialData();
   }, []);
 
   async function handleSearch(pageToFetch = 1) {

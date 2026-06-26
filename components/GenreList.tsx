@@ -1,3 +1,5 @@
+"use client";
+
 type Genre = {
   id: number;
   name: string;
@@ -10,6 +12,15 @@ type GenreListProps = {
   onSelectGenre: (genre: Genre) => void;
   onClearGenre: () => void;
 };
+
+const genreButtonBaseClass =
+  "cursor-pointer rounded-full border px-3 py-1.5 text-[10px] font-bold tracking-wider transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50";
+
+const genreButtonActiveClass =
+  "border-sky-400/70 bg-sky-500/15 text-sky-300 shadow-[0_0_14px_rgba(14,165,233,0.14)]";
+
+const genreButtonInactiveClass =
+  "border-slate-700/80 bg-slate-900/60 text-slate-300 hover:border-sky-400/50 hover:bg-sky-500/10 hover:text-sky-300";
 
 export function GenreList({
   genres,
@@ -43,10 +54,10 @@ export function GenreList({
           type="button"
           onClick={onClearGenre}
           disabled={isLoading}
-          className={`cursor-pointer rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`${genreButtonBaseClass} uppercase ${
             selectedGenreId === null
-              ? "border-sky-400/70 bg-sky-500/15 text-sky-300 shadow-[0_0_14px_rgba(14,165,233,0.14)]"
-              : "border-slate-700/80 bg-slate-900/60 text-slate-300 hover:border-sky-400/50 hover:bg-sky-500/10 hover:text-sky-300"
+              ? genreButtonActiveClass
+              : genreButtonInactiveClass
           }`}
         >
           ALL
@@ -58,10 +69,10 @@ export function GenreList({
             type="button"
             onClick={() => onSelectGenre(genre)}
             disabled={isLoading}
-            className={`cursor-pointer rounded-full border px-3 py-1.5 text-[10px] font-bold tracking-wider transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`${genreButtonBaseClass} ${
               selectedGenreId === genre.id
-                ? "border-sky-400/70 bg-sky-500/15 text-sky-300 shadow-[0_0_14px_rgba(14,165,233,0.14)]"
-                : "border-slate-700/80 bg-slate-900/60 text-slate-300 hover:border-sky-400/50 hover:bg-sky-500/10 hover:text-sky-300"
+                ? genreButtonActiveClass
+                : genreButtonInactiveClass
             }`}
           >
             {genre.name}

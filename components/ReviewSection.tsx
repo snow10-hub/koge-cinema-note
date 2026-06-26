@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 
 type Review = {
   id: number;
@@ -21,37 +21,38 @@ function getStorageKey(movieId: number) {
   return `${STORAGE_KEY_PREFIX}-${movieId}`;
 }
 
+function getStoredReviews(movieId: number): Review[] {
+  if (typeof window === "undefined") return [];
+
+  const rawReviews = localStorage.getItem(getStorageKey(movieId));
+  if (!rawReviews) return [];
+
+  try {
+    return JSON.parse(rawReviews) as Review[];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export function ReviewSection({ movieId }: ReviewSectionProps) {
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
   const [isSpoiler, setIsSpoiler] = useState(false);
+  const [hoverRating, setHoverRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<Review[]>(() =>
+    getStoredReviews(movieId)
+  );
   const [revealedReviewIds, setRevealedReviewIds] = useState<number[]>([]);
-
-  useEffect(() => {
-    const rawReviews = localStorage.getItem(getStorageKey(movieId));
-
-    if (rawReviews) {
-      try {
-        setReviews(JSON.parse(rawReviews) as Review[]);
-      } catch (error) {
-        console.error(error);
-        setReviews([]);
-      }
-    } else {
-      setReviews([]);
-    }
-
-    setRevealedReviewIds([]);
-  }, [movieId]);
 
   const trimmedReview = reviewText.trim();
   const isOverLimit = reviewText.length > MAX_REVIEW_LENGTH;
   const canSubmit =
     trimmedReview.length > 0 && rating > 0 && !isOverLimit && !isSubmitting;
 
+  const displayRating = hoverRating || rating;
   const averageRating = useMemo(() => {
     if (reviews.length === 0) return 0;
 
@@ -169,15 +170,18 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
             あなたの評価
           </p>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5" onMouseLeave={() => setHoverRating(0)}>
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 type="button"
                 onClick={() => setRating(star)}
-                className={`cursor-pointer text-2xl transition-all duration-200 hover:scale-110 active:scale-95 ${star <= rating
-                    ? "text-sky-400 drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]"
-                    : "text-slate-500 hover:text-slate-300"
+                onMouseEnter={() => setHoverRating(star)}
+                onFocus={() => setHoverRating(star)}
+                onBlur={() => setHoverRating(0)}
+                className={`cursor-pointer text-2xl transition-all duration-200 hover:scale-110 active:scale-95 ${star <= displayRating
+                  ? "text-sky-400 drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]"
+                  : "text-slate-500"
                   }`}
                 aria-label={`${star}点をつける`}
               >
@@ -186,10 +190,10 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
             ))}
 
             <span
-              className={`ml-2 text-xs font-bold ${rating > 0 ? "text-sky-400" : "text-slate-400"
+              className={`ml-2 text-xs font-bold ${displayRating > 0 ? "text-sky-400" : "text-slate-400"
                 }`}
             >
-              {rating > 0 ? `${rating} / 5 点` : "星を選択してください"}
+              {displayRating > 0 ? `${displayRating} / 5 点` : "星を選択してください"}
             </span>
           </div>
         </div>

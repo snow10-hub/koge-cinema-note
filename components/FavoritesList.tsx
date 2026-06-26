@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Pin, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 
 type FavoriteMovie = {
     id: number;
@@ -19,34 +19,53 @@ type SortMode = "addedAt" | "year";
 
 const STORAGE_KEY = "koge-cinema-favorites";
 
-function getStoredFavorites(): FavoriteMovie[] {
-    if (typeof window === "undefined") return [];
-    const rawFavorites = localStorage.getItem(STORAGE_KEY);
-    if (!rawFavorites) return [];
+function getFavoritesSnapshot() {
+    if (typeof window === "undefined") return "[]";
+    return localStorage.getItem(STORAGE_KEY) ?? "[]";
+}
 
+function getServerFavoritesSnapshot() {
+    return "[]";
+}
+
+function subscribeFavorites(callback: () => void) {
+    if (typeof window === "undefined") return () => { };
+
+    window.addEventListener("koge_favorites_updated", callback);
+    window.addEventListener("storage", callback);
+
+    return () => {
+        window.removeEventListener("koge_favorites_updated", callback);
+        window.removeEventListener("storage", callback);
+    };
+}
+
+function parseFavoritesSnapshot(snapshot: string): FavoriteMovie[] {
     try {
-        return JSON.parse(rawFavorites) as FavoriteMovie[];
+        return JSON.parse(snapshot) as FavoriteMovie[];
     } catch {
         return [];
     }
 }
 
+function getSortableYear(year: string) {
+    const parsedYear = Number(year);
+    return Number.isNaN(parsedYear) ? 0 : parsedYear;
+}
+
 export function FavoritesList() {
-    const [favorites, setFavorites] = useState<FavoriteMovie[]>([]);
     const [sortMode, setSortMode] = useState<SortMode>("addedAt");
-    const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        setIsMounted(true);
-        const loadFavorites = () => {
-            setFavorites(getStoredFavorites());
-        };
+    const favoritesSnapshot = useSyncExternalStore(
+        subscribeFavorites,
+        getFavoritesSnapshot,
+        getServerFavoritesSnapshot
+    );
 
-        loadFavorites();
-
-        window.addEventListener("koge_favorites_updated", loadFavorites);
-        return () => window.removeEventListener("koge_favorites_updated", loadFavorites);
-    }, []);
+    const favorites = useMemo(
+        () => parseFavoritesSnapshot(favoritesSnapshot),
+        [favoritesSnapshot]
+    );
 
     const sortedFavorites = useMemo(() => {
         return [...favorites].sort((a, b) => {
@@ -54,7 +73,7 @@ export function FavoritesList() {
             if (pinCompare !== 0) return pinCompare;
 
             if (sortMode === "year") {
-                return Number(b.year) - Number(a.year);
+                return getSortableYear(b.year) - getSortableYear(a.year);
             }
             return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
         });
@@ -66,8 +85,6 @@ export function FavoritesList() {
 
         const nextFavorites = favorites.filter((movie) => movie.id !== movieId);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(nextFavorites));
-        setFavorites(nextFavorites);
-
         window.dispatchEvent(new Event("koge_favorites_updated"));
     }
 
@@ -76,17 +93,7 @@ export function FavoritesList() {
             movie.id === movieId ? { ...movie, isPinned: !movie.isPinned } : movie
         );
         localStorage.setItem(STORAGE_KEY, JSON.stringify(nextFavorites));
-        setFavorites(nextFavorites);
-
         window.dispatchEvent(new Event("koge_favorites_updated"));
-    }
-
-    if (!isMounted) {
-        return (
-            <div className="mx-auto max-w-5xl px-6 py-24 text-center">
-                <p className="text-xs tracking-widest text-slate-400 animate-pulse">読み込み中...</p>
-            </div>
-        );
     }
 
     return (
@@ -114,8 +121,8 @@ export function FavoritesList() {
                         type="button"
                         onClick={() => setSortMode("addedAt")}
                         className={`cursor-pointer rounded-full px-3.5 py-1.5 tracking-wide transition-all ${sortMode === "addedAt"
-                                ? "bg-slate-100 text-slate-950 font-black"
-                                : "border border-slate-700 bg-slate-900/40 text-slate-300 hover:text-sky-400 hover:border-sky-500/50"
+                            ? "bg-slate-100 text-slate-950 font-black"
+                            : "border border-slate-700 bg-slate-900/40 text-slate-300 hover:text-sky-400 hover:border-sky-500/50"
                             }`}
                     >
                         追加順
@@ -125,8 +132,8 @@ export function FavoritesList() {
                         type="button"
                         onClick={() => setSortMode("year")}
                         className={`cursor-pointer rounded-full px-3.5 py-1.5 tracking-wide transition-all ${sortMode === "year"
-                                ? "bg-slate-100 text-slate-950 font-black"
-                                : "border border-slate-700 bg-slate-900/40 text-slate-300 hover:text-sky-400 hover:border-sky-500/50"
+                            ? "bg-slate-100 text-slate-950 font-black"
+                            : "border border-slate-700 bg-slate-900/40 text-slate-300 hover:text-sky-400 hover:border-sky-500/50"
                             }`}
                     >
                         公開年順
@@ -150,14 +157,14 @@ export function FavoritesList() {
                     </Link>
                 </div>
             ) : (
-                /* 🌟 改善: ポスターを小さく見せるためにグリッド列数を変更（スマホ3列、タブレット4列、PC5列） */
+
                 <div className="mt-8 grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 lg:grid-cols-5">
                     {sortedFavorites.map((movie) => (
                         <article
                             key={movie.id}
                             className="group flex h-full flex-col overflow-hidden rounded-xl border border-slate-700/80 bg-slate-900/65 shadow-xl shadow-black/40 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-500/80 hover:bg-slate-900/75"
                         >
-                            {/* ポスター画像エリア */}
+
                             <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
                                 <Link href={`/movies/${movie.id}`} className="block h-full w-full">
                                     {movie.poster ? (
@@ -166,7 +173,7 @@ export function FavoritesList() {
                                             alt={`${movie.title} ポスター`}
                                             fill
                                             sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                                            className="object-cover transition duration-500 will-change-transform group-hover:scale-102"
+                                            className="object-cover transition duration-500 will-change-transform group-hover:scale-[1.02]"
                                         />
                                     ) : (
                                         <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-slate-400 tracking-wider">
@@ -183,9 +190,7 @@ export function FavoritesList() {
                                 )}
                             </div>
 
-                            {/* 情報・ボタンエリア */}
                             <div className="flex flex-1 flex-col p-3.5">
-                                {/* メタ情報も1トーン明るく */}
                                 <div className="mb-1.5 flex items-center justify-between text-[11px] font-bold tracking-wide text-slate-200">
                                     <span>{movie.year} 年</span>
                                     <span className="text-sky-400 font-extrabold">★ {movie.rating.toFixed(1)}</span>
@@ -193,7 +198,6 @@ export function FavoritesList() {
 
                                 <div className="flex flex-1 items-start">
                                     <Link href={`/movies/${movie.id}`} className="block w-full">
-                                        {/* 🌟 改善: タイトルフォントを text-xs ➔ text-sm (14px) に拡大 */}
                                         <h2 className="line-clamp-2 text-sm font-bold leading-snug text-white transition-colors">
                                             {movie.title}
                                         </h2>
@@ -201,24 +205,22 @@ export function FavoritesList() {
                                 </div>
 
                                 <div className="mt-4 space-y-2 border-t border-white/5 pt-3">
-                                    {/* 🌟 改善: 枠線を border-slate-700 に強化し、文字を鮮明な白（text-slate-100）にしてサイズも11pxにアップ */}
                                     <button
                                         type="button"
                                         onClick={() => handleTogglePin(movie.id)}
-                                        className={`inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border py-2 text-[11px] font-bold tracking-wide transition-all duration-200 active:scale-98 ${movie.isPinned
-                                                ? "border-amber-400/70 bg-amber-400/10 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.1)]"
-                                                : "border-slate-700/80 bg-slate-800/70 text-slate-200 hover:border-amber-400/60 hover:bg-amber-400/5 hover:text-amber-300"
+                                        className={`inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border py-2 text-[11px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] ${movie.isPinned
+                                            ? "border-amber-400/70 bg-amber-400/10 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.1)]"
+                                            : "border-slate-700/80 bg-slate-800/70 text-slate-200 hover:border-amber-400/60 hover:bg-amber-400/5 hover:text-amber-300"
                                             }`}
                                     >
                                         <Pin className={`h-2.5 w-2.5 ${movie.isPinned ? "fill-current" : ""}`} />
                                         {movie.isPinned ? "ピン留め解除" : "次に観る"}
                                     </button>
 
-                                    {/* 🌟 改善: 枠線を border-slate-700/60 にし、未ホバー時も明るい text-slate-300 でハッキリ見えるように変更 */}
                                     <button
                                         type="button"
                                         onClick={() => handleRemove(movie.id, movie.title)}
-                                        className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border border-slate-700/80 bg-slate-800/70 py-2 text-[11px] font-bold tracking-wide text-slate-300 transition-all duration-200 active:scale-98 hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-400"
+                                        className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border border-slate-700/80 bg-slate-800/70 py-2 text-[11px] font-bold tracking-wide text-slate-300 transition-all duration-200 active:scale-[0.98] hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-400"
                                     >
                                         <Trash2 className="h-2.5 w-2.5" />
                                         削除する

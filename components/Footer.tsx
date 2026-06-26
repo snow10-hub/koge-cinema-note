@@ -33,7 +33,7 @@ export function Footer() {
             <a
               href="https://www.themoviedb.org/"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="font-medium text-sky-400 transition hover:text-sky-300"
             >
               TMDB

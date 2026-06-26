@@ -19,10 +19,11 @@ type MovieListProps = {
 export function MovieList({ movies, title }: MovieListProps) {
   const isTrending = title === "TRENDING THIS WEEK";
 
-  const description =
-    title === "SEARCH RESULTS"
-      ? "検索結果を表示しています。気になる作品を選択して詳細を確認できます。"
-      : "今週注目されている話題の作品をチェック。";
+  const description = isTrending
+  ? "今週注目されている話題の作品をチェック。"
+  : title === "SEARCH RESULTS"
+    ? "検索結果を表示しています。気になる作品を選択して詳細を確認できます。"
+    : "選択したジャンルの映画を表示しています。気になる作品を選択して詳細を確認できます。";
 
   const showFeatured = isTrending && movies.length > 0;
   const featuredMovie = showFeatured ? movies[0] : null;
