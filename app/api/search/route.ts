@@ -16,7 +16,7 @@ export async function GET(request: Request) {
       results: results,
       total_pages: total_pages, // 🌟 フロント側に「総ページ数」を返してあげる
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: "映画データの取得に失敗しました",

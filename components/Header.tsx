@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import type { MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { Bebas_Neue } from "next/font/google";
 import { Moon } from "lucide-react";
@@ -41,7 +40,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/20 bg-slate-950/80 backdrop-blur-xl antialiased">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-8">
-        <Link href="/" className="group block min-w-0 pr-4">
+        <Link
+          href="/"
+          className="group block min-w-0 pr-4"
+          onClick={() => setIsMenuOpen(false)}
+        >
           <span
             className={`${bebasNeue.className} block text-2xl tracking-widest text-white drop-shadow-md transition group-hover:text-sky-200 sm:text-3xl md:text-4xl`}
           >
@@ -75,23 +78,23 @@ export function Header() {
           className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/40 bg-slate-900/70 text-sky-300 shadow-lg shadow-black/40 transition hover:border-sky-400/50 hover:bg-sky-500/10 hover:text-sky-200 md:hidden"
           aria-label={isMenuOpen ? "メニューを閉じる" : "メニューを開く"}
           aria-expanded={isMenuOpen}
+          aria-controls="mobile-nav"
         >
           <Moon
             size={19}
             strokeWidth={2.1}
-            className={`transition duration-300 ${
-              isMenuOpen ? "rotate-[-90deg] fill-sky-300/20" : ""
-            }`}
+            className={`transition duration-300 ${isMenuOpen ? "rotate-[-90deg] fill-sky-300/20" : ""
+              }`}
           />
         </button>
       </div>
 
       <div
-        className={`grid overflow-hidden bg-slate-950/95 shadow-2xl shadow-black/50 transition-all duration-300 ease-out md:hidden ${
-          isMenuOpen
-            ? "grid-rows-[1fr] border-t border-white/10 opacity-100 translate-y-0"
-            : "grid-rows-[0fr] border-t border-transparent opacity-0 -translate-y-2 pointer-events-none"
-        }`}
+        id="mobile-nav"
+        className={`grid overflow-hidden bg-slate-950/95 shadow-2xl shadow-black/50 transition-all duration-300 ease-out md:hidden ${isMenuOpen
+          ? "grid-rows-[1fr] border-t border-white/10 opacity-100 translate-y-0"
+          : "grid-rows-[0fr] border-t border-transparent opacity-0 -translate-y-2 pointer-events-none"
+          }`}
       >
         <div className="min-h-0 overflow-hidden">
           <nav
