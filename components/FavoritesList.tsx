@@ -158,7 +158,7 @@ export function FavoritesList() {
                 </div>
             ) : (
 
-                <div className="mt-8 grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 lg:grid-cols-5">
+                <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
                     {sortedFavorites.map((movie) => (
                         <article
                             key={movie.id}
@@ -172,7 +172,8 @@ export function FavoritesList() {
                                             src={movie.poster}
                                             alt={`${movie.title} ポスター`}
                                             fill
-                                            sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                                            unoptimized
                                             className="object-cover transition duration-500 will-change-transform group-hover:scale-[1.02]"
                                         />
                                     ) : (

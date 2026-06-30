@@ -26,7 +26,7 @@ export function Hero({
   return (
     <section
       id="search"
-      className="relative h-[56svh] min-h-[27rem] w-full overflow-hidden bg-slate-950 antialiased select-none md:h-[52vh] md:min-h-0"
+      className="relative h-[48svh] min-h-[22rem] w-full overflow-hidden bg-slate-950 antialiased select-none md:h-[46vh] md:min-h-0"
     >
 
       <div

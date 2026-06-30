@@ -14,7 +14,7 @@ type GenreListProps = {
 };
 
 const genreButtonBaseClass =
-  "cursor-pointer rounded-full border px-3 py-1.5 text-[10px] font-bold tracking-wider transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50";
+  "shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-[10px] font-bold tracking-wider transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50";
 
 const genreButtonActiveClass =
   "border-sky-400/70 bg-sky-500/15 text-sky-300 shadow-[0_0_14px_rgba(14,165,233,0.14)]";
@@ -49,35 +49,37 @@ export function GenreList({
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={onClearGenre}
-          disabled={isLoading}
-          className={`${genreButtonBaseClass} uppercase ${
-            selectedGenreId === null
-              ? genreButtonActiveClass
-              : genreButtonInactiveClass
-          }`}
-        >
-          ALL
-        </button>
-
-        {genres.map((genre) => (
+      <div className="relative -mx-6 md:mx-0">
+        <div className="flex gap-2 overflow-x-auto pl-6 pr-14 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
           <button
-            key={genre.id}
             type="button"
-            onClick={() => onSelectGenre(genre)}
+            onClick={onClearGenre}
             disabled={isLoading}
-            className={`${genreButtonBaseClass} ${
-              selectedGenreId === genre.id
+            className={`${genreButtonBaseClass} uppercase ${selectedGenreId === null
                 ? genreButtonActiveClass
                 : genreButtonInactiveClass
-            }`}
+              }`}
           >
-            {genre.name}
+            ALL
           </button>
-        ))}
+
+          {genres.map((genre) => (
+            <button
+              key={genre.id}
+              type="button"
+              onClick={() => onSelectGenre(genre)}
+              disabled={isLoading}
+              className={`${genreButtonBaseClass} ${selectedGenreId === genre.id
+                  ? genreButtonActiveClass
+                  : genreButtonInactiveClass
+                }`}
+            >
+              {genre.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent md:hidden" />
       </div>
     </section>
   );
