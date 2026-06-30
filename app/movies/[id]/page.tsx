@@ -117,7 +117,7 @@ export default async function MovieDetailPage({
                     {releaseYear}
                   </span>
 
-                  {movie.runtime && (
+                  {typeof movie.runtime === "number" && movie.runtime > 0 && (
                     <span className="rounded-full border border-slate-700/80 bg-slate-800/70 px-2.5 py-1 md:px-3">
                       {movie.runtime} MIN
                     </span>
